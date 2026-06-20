@@ -30,15 +30,18 @@
 
   function defaultState() {
     return {
-      settings: { currency: "USD", theme: "light" },
+      // baseCurrency drives all reporting/aggregation; rates = value of 1 unit of
+      // a currency expressed in the base currency (base itself is implicitly 1).
+      settings: { baseCurrency: "USD", rates: {}, theme: "light" },
       accounts: [
-        { id: uid(), name: "Checking", type: "Bank", openingBalance: 0 },
-        { id: uid(), name: "Cash", type: "Cash", openingBalance: 0 }
+        { id: uid(), name: "Checking", type: "Bank", openingBalance: 0, currency: "USD" },
+        { id: uid(), name: "Cash", type: "Cash", openingBalance: 0, currency: "USD" }
       ],
       categories: DEFAULT_CATEGORIES.map(function (c) { return Object.assign({ id: uid() }, c); }),
       transactions: [],
-      budgets: [],       // { id, categoryId, amount }  (monthly limit)
-      recurring: []      // { id, name, type, accountId, categoryId, amount, frequency, nextDate, active }
+      budgets: [],       // { id, categoryId, amount }  (monthly limit, in base currency)
+      recurring: [],     // { id, name, type, accountId, categoryId, amount, frequency, nextDate, active }
+      goals: []          // { id, name, target, saved, targetDate, color }  (in base currency)
     };
   }
 
@@ -52,6 +55,7 @@
         // Merge in any new default fields for forward-compatibility.
         var d = defaultState();
         for (var k in d) if (!(k in state)) state[k] = d[k];
+        migrate();
       } else {
         state = defaultState();
         save();
@@ -61,6 +65,16 @@
       state = defaultState();
     }
     return state;
+  }
+
+  // Bring older persisted state up to the current schema (multi-currency, goals).
+  function migrate() {
+    var s = state.settings || (state.settings = {});
+    if (!s.baseCurrency) s.baseCurrency = s.currency || "USD";
+    delete s.currency;
+    if (!s.rates || typeof s.rates !== "object") s.rates = {};
+    if (!Array.isArray(state.goals)) state.goals = [];
+    state.accounts.forEach(function (a) { if (!a.currency) a.currency = s.baseCurrency; });
   }
 
   function save() {
@@ -76,9 +90,32 @@
   function replaceState(next) { state = next; save(); }
 
   /* ---------- Currency / date formatting ---------- */
+  function baseCurrency() { return (state.settings && state.settings.baseCurrency) || "USD"; }
+
+  // Value of 1 unit of `cur` expressed in the base currency.
+  function rateOf(cur) {
+    if (!cur || cur === baseCurrency()) return 1;
+    var r = state.settings.rates && state.settings.rates[cur];
+    return (r && r > 0) ? r : 1;   // unknown rate falls back to 1:1
+  }
+
+  // Convert an amount between two currencies via the base currency.
+  function convert(amount, fromCur, toCur) {
+    var inBase = (Number(amount) || 0) * rateOf(fromCur);
+    return toCur === baseCurrency() ? inBase : inBase / rateOf(toCur);
+  }
+
+  function accountCurrency(accountId) {
+    var a = accountById(accountId);
+    return (a && a.currency) || baseCurrency();
+  }
+
+  // Convert a transaction's amount into the base currency for aggregation.
+  function txBaseAmount(t) { return convert(t.amount, accountCurrency(t.accountId), baseCurrency()); }
+
   function fmtMoney(amount, opts) {
     opts = opts || {};
-    var cur = state.settings.currency || "USD";
+    var cur = opts.currency || baseCurrency();
     var n = Number(amount) || 0;
     try {
       return n.toLocaleString(undefined, {
@@ -107,15 +144,17 @@
 
   /* ---------- Derived metrics ---------- */
 
-  // Current balance of an account = opening + all its transactions.
+  // Current balance of an account, expressed in that account's own currency.
   function accountBalance(accountId) {
     var acct = accountById(accountId);
     if (!acct) return 0;
+    var cur = acct.currency || baseCurrency();
     var bal = Number(acct.openingBalance) || 0;
     state.transactions.forEach(function (t) {
       if (t.type === "transfer") {
-        if (t.accountId === accountId) bal -= t.amount;       // money leaves source
-        if (t.toAccountId === accountId) bal += t.amount;      // money enters destination
+        // Transfer amount is stored in the SOURCE account's currency.
+        if (t.accountId === accountId) bal -= t.amount;
+        if (t.toAccountId === accountId) bal += convert(t.amount, accountCurrency(t.accountId), cur);
         return;
       }
       if (t.accountId !== accountId) return;
@@ -124,31 +163,51 @@
     return bal;
   }
 
+  // Net worth across all accounts, converted to the base currency.
   function totalNetWorth() {
-    return state.accounts.reduce(function (sum, a) { return sum + accountBalance(a.id); }, 0);
+    return state.accounts.reduce(function (sum, a) {
+      return sum + convert(accountBalance(a.id), a.currency || baseCurrency(), baseCurrency());
+    }, 0);
   }
 
   function transactionsInMonth(key) {
     return state.transactions.filter(function (t) { return monthKey(t.date) === key; });
   }
 
-  function monthTotals(key) {
+  // All figures are converted to the base currency for cross-account aggregation.
+  function totalsFor(list) {
     var income = 0, expense = 0;
-    transactionsInMonth(key).forEach(function (t) {
-      if (t.type === "income") income += t.amount;
-      else if (t.type === "expense") expense += t.amount;   // transfers excluded
+    list.forEach(function (t) {
+      if (t.type === "income") income += txBaseAmount(t);
+      else if (t.type === "expense") expense += txBaseAmount(t);   // transfers excluded
     });
     return { income: income, expense: expense, net: income - expense };
   }
+  function monthTotals(key) { return totalsFor(transactionsInMonth(key)); }
 
-  // Spend per category (expenses only) within a month.
-  function spendByCategory(key) {
+  // Spend per category (expenses only) within a month, in base currency.
+  function spendByCategory(key) { return spendByCategoryFor(transactionsInMonth(key)); }
+  function spendByCategoryFor(list) {
     var map = {};
-    transactionsInMonth(key).forEach(function (t) {
+    list.forEach(function (t) {
       if (t.type !== "expense") return;
-      map[t.categoryId] = (map[t.categoryId] || 0) + t.amount;
+      map[t.categoryId] = (map[t.categoryId] || 0) + txBaseAmount(t);
     });
     return map;
+  }
+  // Income per category within a list, in base currency.
+  function incomeByCategoryFor(list) {
+    var map = {};
+    list.forEach(function (t) {
+      if (t.type !== "income") return;
+      map[t.categoryId] = (map[t.categoryId] || 0) + txBaseAmount(t);
+    });
+    return map;
+  }
+
+  // Transactions whose date falls within [startISO, endISO] inclusive.
+  function transactionsInRange(startISO, endISO) {
+    return state.transactions.filter(function (t) { return t.date >= startISO && t.date <= endISO; });
   }
 
   // Last N months (including current) of {key, income, expense, net}.
@@ -168,15 +227,17 @@
   // Running net-worth value at the end of each of the last N months.
   function netWorthSeries(n, endKey) {
     var series = monthlySeries(n, endKey);
-    // Net worth at end of each month = opening balances + cumulative net up to that month.
-    var openings = state.accounts.reduce(function (s, a) { return s + (Number(a.openingBalance) || 0); }, 0);
+    // Net worth at end of each month = opening balances + cumulative net up to that month (base currency).
+    var openings = state.accounts.reduce(function (s, a) {
+      return s + convert(Number(a.openingBalance) || 0, a.currency || baseCurrency(), baseCurrency());
+    }, 0);
     // Sum of all transactions strictly before the first month in the window.
     var firstKey = series.length ? series[0].key : endKey;
     var priorNet = 0;
     state.transactions.forEach(function (t) {
       if (monthKey(t.date) >= firstKey) return;
-      if (t.type === "income") priorNet += t.amount;
-      else if (t.type === "expense") priorNet -= t.amount;   // transfers net to zero
+      if (t.type === "income") priorNet += txBaseAmount(t);
+      else if (t.type === "expense") priorNet -= txBaseAmount(t);   // transfers net to zero
     });
     var running = openings + priorNet;
     return series.map(function (m) {
@@ -310,6 +371,16 @@
       { id: uid(), name: "Salary", type: "income", accountId: checking, categoryId: cat("Salary"), amount: 4200, frequency: "monthly", nextDate: iso(-12), active: true },
       { id: uid(), name: "Streaming", type: "expense", accountId: checking, categoryId: cat("Subscriptions"), amount: 15.99, frequency: "monthly", nextDate: iso(-2), active: true }
     ];
+    // A second-currency account to showcase multi-currency reporting.
+    var euro = { id: uid(), name: "Euro Savings", type: "Savings", openingBalance: 2000, currency: "EUR" };
+    s.accounts.push(euro);
+    s.settings.rates = { EUR: 1.08 };   // 1 EUR ≈ 1.08 USD
+    function inDays(days) { var d = new Date(now); d.setDate(d.getDate() + days); return d.toISOString().slice(0, 10); }
+    s.goals = [
+      { id: uid(), name: "Emergency Fund", target: 10000, saved: 6500, targetDate: inDays(300), color: "#4f6ef7" },
+      { id: uid(), name: "Vacation", target: 3000, saved: 800, targetDate: inDays(120), color: "#e6a23c" },
+      { id: uid(), name: "New Laptop", target: 1800, saved: 1800, targetDate: "", color: "#1faa6c" }
+    ];
     replaceState(s);
   }
 
@@ -326,14 +397,23 @@
     todayISO: todayISO,
     monthKey: monthKey,
     monthLabel: monthLabel,
+    baseCurrency: baseCurrency,
+    rateOf: rateOf,
+    convert: convert,
+    accountCurrency: accountCurrency,
+    txBaseAmount: txBaseAmount,
     accountById: accountById,
     categoryById: categoryById,
     categoryByName: categoryByName,
     accountBalance: accountBalance,
     totalNetWorth: totalNetWorth,
     transactionsInMonth: transactionsInMonth,
+    transactionsInRange: transactionsInRange,
     monthTotals: monthTotals,
+    totalsFor: totalsFor,
     spendByCategory: spendByCategory,
+    spendByCategoryFor: spendByCategoryFor,
+    incomeByCategoryFor: incomeByCategoryFor,
     monthlySeries: monthlySeries,
     netWorthSeries: netWorthSeries,
     addToDate: addToDate,

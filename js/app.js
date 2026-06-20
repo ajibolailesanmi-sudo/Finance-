@@ -10,6 +10,7 @@
   var ui = {
     view: "dashboard",
     month: S.monthKey(S.todayISO()),
+    reportPeriod: "month",
     txFilter: { search: "", category: "all", type: "all" }
   };
 
@@ -95,9 +96,26 @@
     // Upcoming bills
     var bills = upcomingBillsList(5);
 
+    // Goals progress (compact)
+    var goalsBlock = "";
+    if (st.goals.length) {
+      var gitems = st.goals.slice().sort(function (a, b) {
+        return (b.target ? b.saved / b.target : 0) - (a.target ? a.saved / a.target : 0);
+      }).slice(0, 4).map(function (g) {
+        var pct = g.target > 0 ? Math.min(100, g.saved / g.target * 100) : 0;
+        var done = g.target > 0 && g.saved >= g.target;
+        return '<div style="margin-bottom:12px"><div class="row-between small" style="margin-bottom:5px">' +
+          "<span><span class='dot' style='background:" + (g.color || "#4f6ef7") + "'></span>" + escHtml(g.name) + "</span>" +
+          '<span class="muted">' + S.fmtMoney(g.saved) + " / " + S.fmtMoney(g.target) + "</span></div>" +
+          '<div class="progress"><span style="width:' + pct + '%;background:' + (done ? "var(--income)" : (g.color || "var(--primary)")) + '"></span></div></div>';
+      }).join("");
+      goalsBlock = '<div class="card"><div class="card-title">Savings Goals</div>' + gitems + "</div>";
+    }
+
     return stats +
       '<div class="grid cols-2">' + trendBlock + donutBlock + "</div>" +
-      '<div class="grid cols-2 section-gap">' + barsBlock + bills + "</div>";
+      '<div class="grid cols-2 section-gap">' + barsBlock + bills + "</div>" +
+      (goalsBlock ? '<div class="grid section-gap">' + goalsBlock + "</div>" : "");
   };
 
   function statCard(label, value, cls, sub) {
@@ -116,9 +134,9 @@
       var c = S.categoryById(r.categoryId);
       var cls = r.days < 0 ? "overdue" : (r.days <= 7 ? "due-soon" : "");
       var when = r.days < 0 ? Math.abs(r.days) + "d overdue" : (r.days === 0 ? "Today" : "in " + r.days + "d");
-      return '<tr><td><span class="dot" style="background:' + (c ? c.color : "#888") + '"></span>' + r.name + "</td>" +
+      return '<tr><td><span class="dot" style="background:' + (c ? c.color : "#888") + '"></span>' + escHtml(r.name) + "</td>" +
         '<td class="' + cls + '">' + when + "</td>" +
-        '<td class="amount-cell ' + (r.type === "income" ? "pos" : "neg") + '">' + S.fmtMoney(r.amount) + "</td></tr>";
+        '<td class="amount-cell ' + (r.type === "income" ? "pos" : "neg") + '">' + S.fmtMoney(r.amount, { currency: S.accountCurrency(r.accountId) }) + "</td></tr>";
     }).join("");
     var body = items.length ? '<table class="table"><tbody>' + rows + "</tbody></table>"
       : '<div class="muted small">No recurring items. Add some under "Recurring &amp; Bills".</div>';
@@ -150,7 +168,7 @@
           '<td><span class="dot" style="background:var(--muted)"></span><span class="muted">⇄ Transfer</span></td>' +
           "<td>" + (t.note ? escHtml(t.note) : '<span class="muted">—</span>') + "</td>" +
           "<td>" + (from ? escHtml(from.name) : "—") + ' <span class="muted">→</span> ' + (to ? escHtml(to.name) : "—") + "</td>" +
-          '<td class="amount-cell muted">' + S.fmtMoney(t.amount) + "</td>" +
+          '<td class="amount-cell muted">' + S.fmtMoney(t.amount, { currency: S.accountCurrency(t.accountId) }) + "</td>" +
           '<td class="nowrap"><button class="icon-btn" data-act="edit">✏️</button><button class="icon-btn" data-act="del">🗑️</button></td>' +
           "</tr>";
       }
@@ -161,7 +179,7 @@
         '<td><span class="dot" style="background:' + (c ? c.color : "#888") + '"></span>' + (c ? escHtml(c.name) : "—") + "</td>" +
         "<td>" + (t.note ? escHtml(t.note) : '<span class="muted">—</span>') + "</td>" +
         "<td>" + (a ? escHtml(a.name) : "—") + "</td>" +
-        '<td class="amount-cell ' + (t.type === "income" ? "pos" : "neg") + '">' + (t.type === "income" ? "+" : "−") + S.fmtMoney(t.amount) + "</td>" +
+        '<td class="amount-cell ' + (t.type === "income" ? "pos" : "neg") + '">' + (t.type === "income" ? "+" : "−") + S.fmtMoney(t.amount, { currency: S.accountCurrency(t.accountId) }) + "</td>" +
         '<td class="nowrap"><button class="icon-btn" data-act="edit">✏️</button><button class="icon-btn" data-act="del">🗑️</button></td>' +
         "</tr>";
     }).join("");
@@ -256,20 +274,24 @@
   // ---------- Accounts ----------
   Views.accounts = function () {
     var st = S.getState();
+    var base = S.baseCurrency();
     var rows = st.accounts.map(function (a) {
       var bal = S.accountBalance(a.id);
-      var count = st.transactions.filter(function (t) { return t.accountId === a.id; }).length;
+      var cur = a.currency || base;
+      var count = st.transactions.filter(function (t) { return t.accountId === a.id || t.toAccountId === a.id; }).length;
+      var baseEq = cur !== base ? '<div class="small muted">≈ ' + S.fmtMoney(S.convert(bal, cur, base)) + " " + base + "</div>" : "";
       return '<tr data-id="' + a.id + '">' +
         "<td><strong>" + escHtml(a.name) + "</strong></td>" +
-        '<td><span class="pill">' + escHtml(a.type) + "</span></td>" +
+        '<td><span class="pill">' + escHtml(a.type) + '</span> <span class="pill">' + cur + "</span></td>" +
         "<td>" + count + " transactions</td>" +
-        '<td class="amount-cell ' + (bal >= 0 ? "pos" : "neg") + '">' + S.fmtMoney(bal) + "</td>" +
+        '<td class="amount-cell ' + (bal >= 0 ? "pos" : "neg") + '">' + S.fmtMoney(bal, { currency: cur }) + baseEq + "</td>" +
         '<td class="nowrap"><button class="icon-btn" data-act="edit">✏️</button><button class="icon-btn" data-act="del">🗑️</button></td>' +
         "</tr>";
     }).join("");
 
+    var nw = '<div class="small muted" style="margin-bottom:10px">Total net worth: <strong>' + S.fmtMoney(S.totalNetWorth()) + " " + base + "</strong> (base currency)</div>";
     return '<div class="toolbar" style="justify-content:flex-end"><button class="primary-btn" id="acct-add">+ Add Account</button></div>' +
-      '<div class="card"><table class="table"><thead><tr><th>Account</th><th>Type</th><th>Activity</th><th style="text-align:right">Balance</th><th></th></tr></thead><tbody>' +
+      '<div class="card">' + nw + '<table class="table"><thead><tr><th>Account</th><th>Type</th><th>Activity</th><th style="text-align:right">Balance</th><th></th></tr></thead><tbody>' +
       rows + "</tbody></table></div>";
   };
 
@@ -298,16 +320,151 @@
       '<div class="grid cols-2">' + section("income", "Income Categories") + section("expense", "Expense Categories") + "</div>";
   };
 
+  // ---------- Goals ----------
+  Views.goals = function () {
+    var st = S.getState();
+    var totalTarget = st.goals.reduce(function (s, g) { return s + (g.target || 0); }, 0);
+    var totalSaved = st.goals.reduce(function (s, g) { return s + (g.saved || 0); }, 0);
+
+    var head = '<div class="grid stat-grid">' +
+      statCard("Goals", String(st.goals.length), null, "Active savings goals") +
+      statCard("Saved", S.fmtMoney(totalSaved), "pos", (totalTarget ? (totalSaved / totalTarget * 100).toFixed(0) : 0) + "% of target") +
+      statCard("Target", S.fmtMoney(totalTarget), null, "Combined goal value") +
+      "</div>";
+
+    var cards = st.goals.map(function (g) {
+      var pct = g.target > 0 ? Math.min(100, g.saved / g.target * 100) : 0;
+      var done = g.saved >= g.target && g.target > 0;
+      var remaining = Math.max(0, g.target - g.saved);
+      var dateInfo = "";
+      if (g.targetDate) {
+        var days = S.daysUntil(g.targetDate);
+        if (done) dateInfo = '<span class="pos">🎉 Goal reached!</span>';
+        else if (days < 0) dateInfo = '<span class="overdue">Target date passed</span>';
+        else {
+          var months = Math.max(1, days / 30.44);
+          dateInfo = "Need " + S.fmtMoney(remaining / months) + "/mo · " + days + "d left (" + g.targetDate + ")";
+        }
+      } else if (done) dateInfo = '<span class="pos">🎉 Goal reached!</span>';
+      else dateInfo = S.fmtMoney(remaining) + " to go";
+
+      return '<div class="card" style="margin-bottom:12px" data-id="' + g.id + '">' +
+        '<div class="row-between" style="margin-bottom:10px">' +
+        '<strong><span class="dot" style="background:' + (g.color || "#4f6ef7") + '"></span>' + escHtml(g.name) + "</strong>" +
+        '<span>' + S.fmtMoney(g.saved) + ' <span class="muted">/ ' + S.fmtMoney(g.target) + "</span> " +
+        '<button class="icon-btn" data-act="fund-goal" title="Add or remove funds">💵</button>' +
+        '<button class="icon-btn" data-act="edit-goal">✏️</button><button class="icon-btn" data-act="del-goal">🗑️</button></span></div>' +
+        '<div class="progress"><span style="width:' + pct + '%;background:' + (done ? "var(--income)" : (g.color || "var(--primary)")) + '"></span></div>' +
+        '<div class="small ' + (done ? "pos" : "muted") + '" style="margin-top:6px">' + pct.toFixed(0) + "% · " + dateInfo + "</div></div>";
+    }).join("");
+
+    var body = st.goals.length ? cards : '<div class="empty"><div class="big">🏆</div>No goals yet. Set one to start saving toward something.</div>';
+    return head + '<div class="toolbar" style="justify-content:flex-end"><button class="primary-btn" id="goal-add">+ Add Goal</button></div>' + body;
+  };
+
+  // ---------- Reports ----------
+  function reportRange(period) {
+    var now = new Date();
+    var y = now.getFullYear(), m = now.getMonth();
+    function iso(d) { return d.toISOString().slice(0, 10); }
+    if (period === "3m") { var s = new Date(y, m - 2, 1); return { start: iso(s), end: iso(new Date(y, m + 1, 0)), label: "Last 3 months" }; }
+    if (period === "year") return { start: y + "-01-01", end: y + "-12-31", label: "This year (" + y + ")" };
+    if (period === "all") return { start: "0000-01-01", end: "9999-12-31", label: "All time" };
+    return { start: iso(new Date(y, m, 1)), end: iso(new Date(y, m + 1, 0)), label: S.monthLabel(S.monthKey(S.todayISO())) };  // this month
+  }
+
+  Views.reports = function () {
+    var st = S.getState();
+    var period = ui.reportPeriod || "month";
+    var range = reportRange(period);
+    var txs = S.transactionsInRange(range.start, range.end);
+    var totals = S.totalsFor(txs);
+    var base = S.baseCurrency();
+    var savingsRate = totals.income > 0 ? (totals.net / totals.income * 100) : 0;
+
+    function periodBtn(v, label) { return '<button class="' + (period === v ? "active" : "") + '" data-period="' + v + '">' + label + "</button>"; }
+    var selector = '<div class="toolbar no-print" style="justify-content:space-between">' +
+      '<div class="seg" id="report-period" style="max-width:520px">' +
+      periodBtn("month", "This month") + periodBtn("3m", "Last 3 months") + periodBtn("year", "This year") + periodBtn("all", "All time") + "</div>" +
+      '<button class="primary-btn" id="report-print">🖨️ Save as PDF</button></div>';
+
+    var header = '<div class="report-head"><h2 style="margin:0">Financial Report</h2>' +
+      '<div class="muted small">' + escHtml(range.label) + " · all values in " + base +
+      " · generated " + new Date().toLocaleString() + "</div></div>";
+
+    var stats = '<div class="grid stat-grid">' +
+      statCard("Income", S.fmtMoney(totals.income), "pos", range.label) +
+      statCard("Expenses", S.fmtMoney(totals.expense), "neg", range.label) +
+      statCard("Net", S.fmtMoney(totals.net), totals.net >= 0 ? "pos" : "neg", savingsRate.toFixed(0) + "% savings rate") +
+      statCard("Net Worth", S.fmtMoney(S.totalNetWorth()), null, "Current, all accounts") +
+      "</div>";
+
+    function breakdown(title, map, total) {
+      var keys = Object.keys(map).sort(function (a, b) { return map[b] - map[a]; });
+      if (!keys.length) return '<div class="card"><div class="card-title">' + title + '</div><div class="muted small">No data for this period.</div></div>';
+      var rows = keys.map(function (k) {
+        var c = S.categoryById(k);
+        var pct = total > 0 ? (map[k] / total * 100) : 0;
+        return "<tr><td><span class='dot' style='background:" + (c ? c.color : "#888") + "'></span>" + (c ? escHtml(c.name) : "—") + "</td>" +
+          '<td class="muted">' + pct.toFixed(1) + "%</td>" +
+          '<td class="amount-cell">' + S.fmtMoney(map[k]) + "</td></tr>";
+      }).join("");
+      return '<div class="card"><div class="card-title">' + title + '</div><table class="table"><tbody>' + rows + "</tbody></table></div>";
+    }
+    var breakdowns = '<div class="grid cols-2 section-gap">' +
+      breakdown("Expenses by Category", S.spendByCategoryFor(txs), totals.expense) +
+      breakdown("Income by Category", S.incomeByCategoryFor(txs), totals.income) + "</div>";
+
+    // Account balances
+    var acctRows = st.accounts.map(function (a) {
+      var cur = a.currency || base, bal = S.accountBalance(a.id);
+      return "<tr><td>" + escHtml(a.name) + ' <span class="pill">' + cur + "</span></td>" +
+        '<td class="amount-cell">' + S.fmtMoney(bal, { currency: cur }) + "</td>" +
+        '<td class="amount-cell muted">' + S.fmtMoney(S.convert(bal, cur, base)) + " " + base + "</td></tr>";
+    }).join("");
+    var accountsCard = '<div class="card"><div class="card-title">Account Balances</div><table class="table">' +
+      '<thead><tr><th>Account</th><th style="text-align:right">Balance</th><th style="text-align:right">In ' + base + "</th></tr></thead><tbody>" +
+      acctRows + "</tbody></table></div>";
+
+    // Goals snapshot
+    var goalsCard = "";
+    if (st.goals.length) {
+      var grows = st.goals.map(function (g) {
+        var pct = g.target > 0 ? Math.min(100, g.saved / g.target * 100) : 0;
+        return "<tr><td><span class='dot' style='background:" + (g.color || "#4f6ef7") + "'></span>" + escHtml(g.name) + "</td>" +
+          '<td class="muted">' + pct.toFixed(0) + "%</td>" +
+          '<td class="amount-cell">' + S.fmtMoney(g.saved) + " / " + S.fmtMoney(g.target) + "</td></tr>";
+      }).join("");
+      goalsCard = '<div class="card"><div class="card-title">Savings Goals</div><table class="table"><tbody>' + grows + "</tbody></table></div>";
+    }
+
+    return selector + '<div id="printable">' + header + stats + breakdowns +
+      '<div class="grid cols-2 section-gap">' + accountsCard + goalsCard + "</div></div>";
+  };
+
   // ---------- Settings ----------
   Views.settings = function () {
     var st = S.getState();
-    var currencies = ["USD", "EUR", "GBP", "NGN", "JPY", "CAD", "AUD", "INR", "ZAR", "BRL"];
-    var curOpts = currencies.map(function (c) { return '<option value="' + c + '"' + (st.settings.currency === c ? " selected" : "") + ">" + c + "</option>"; }).join("");
+    var currencies = ["USD", "EUR", "GBP", "NGN", "JPY", "CAD", "AUD", "INR", "ZAR", "BRL", "CNY", "CHF", "MXN", "KES"];
+    var base = S.baseCurrency();
+    var curOpts = currencies.map(function (c) { return '<option value="' + c + '"' + (base === c ? " selected" : "") + ">" + c + "</option>"; }).join("");
+
+    // Currencies actually in use by accounts, excluding base, plus any with a stored rate.
+    var used = {};
+    st.accounts.forEach(function (a) { if (a.currency && a.currency !== base) used[a.currency] = true; });
+    Object.keys(st.settings.rates || {}).forEach(function (c) { if (c !== base) used[c] = true; });
+    var rateRows = Object.keys(used).sort().map(function (c) {
+      return '<div class="form-row"><label>1 ' + c + " = ? " + base + '</label><input type="number" step="0.0001" min="0" class="rate-input" data-cur="' + c + '" value="' + (S.rateOf(c)) + '" /></div>';
+    }).join("") || '<div class="muted small">No foreign-currency accounts yet. Add an account in a different currency to set its rate.</div>';
 
     return '<div class="grid cols-2">' +
       '<div class="card"><div class="card-title">Preferences</div>' +
-      '<div class="form-row"><label>Currency</label><select id="set-currency">' + curOpts + "</select></div>" +
+      '<div class="form-row"><label>Base currency (for reports &amp; net worth)</label><select id="set-currency">' + curOpts + "</select></div>" +
       '<div class="form-row"><label>Theme</label><div class="seg"><button id="theme-light" class="' + (st.settings.theme !== "dark" ? "active" : "") + '">☀️ Light</button><button id="theme-dark" class="' + (st.settings.theme === "dark" ? "active" : "") + '">🌙 Dark</button></div></div>' +
+      "</div>" +
+      '<div class="card"><div class="card-title">Exchange Rates</div>' +
+      '<p class="muted small" style="margin-bottom:14px">Used to convert other currencies into ' + base + ' for net worth and reports. Update these manually as rates change.</p>' +
+      rateRows +
       "</div>" +
       '<div class="card"><div class="card-title">Your Data</div>' +
       '<p class="muted small" style="margin-bottom:14px">Everything is stored privately in this browser. Export regularly to keep a backup.</p>' +
@@ -452,25 +609,80 @@
     };
   }
 
+  var CURRENCIES = ["USD", "EUR", "GBP", "NGN", "JPY", "CAD", "AUD", "INR", "ZAR", "BRL", "CNY", "CHF", "MXN", "KES"];
   function accountModal(existing) {
     var st = S.getState();
-    var a = existing || { name: "", type: "Bank", openingBalance: 0 };
+    var base = S.baseCurrency();
+    var a = existing || { name: "", type: "Bank", openingBalance: 0, currency: base };
     var types = ["Bank", "Cash", "Credit Card", "Savings", "Investment", "Other"];
     var typeOpts = types.map(function (t) { return '<option' + (a.type === t ? " selected" : "") + ">" + t + "</option>"; }).join("");
+    var curList = CURRENCIES.slice();
+    if (curList.indexOf(base) === -1) curList.unshift(base);
+    var curOpts = curList.map(function (c) { return '<option value="' + c + '"' + ((a.currency || base) === c ? " selected" : "") + ">" + c + (c === base ? " (base)" : "") + "</option>"; }).join("");
     openModal(
       "<h2>" + (existing ? "Edit" : "Add") + " Account</h2>" +
       '<div class="form-row"><label>Name</label><input id="a-name" value="' + escAttr(a.name) + '" placeholder="e.g. Main Checking" /></div>' +
       '<div class="form-grid-2"><div class="form-row"><label>Type</label><select id="a-type">' + typeOpts + "</select></div>" +
-      '<div class="form-row"><label>Opening balance</label><input id="a-bal" type="number" step="0.01" value="' + (a.openingBalance || 0) + '" /></div></div>' +
+      '<div class="form-row"><label>Currency</label><select id="a-currency">' + curOpts + "</select></div></div>" +
+      '<div class="form-row"><label>Opening balance</label><input id="a-bal" type="number" step="0.01" value="' + (a.openingBalance || 0) + '" /></div>' +
       modalActions()
     );
     $("#modal-save").onclick = function () {
       var name = $("#a-name").value.trim();
       if (!name) return toast("Enter a name.", "error");
-      var rec = { id: existing ? existing.id : S.uid(), name: name, type: $("#a-type").value, openingBalance: parseFloat($("#a-bal").value) || 0 };
+      var currency = $("#a-currency").value;
+      var rec = { id: existing ? existing.id : S.uid(), name: name, type: $("#a-type").value, openingBalance: parseFloat($("#a-bal").value) || 0, currency: currency };
       if (existing) { var i = st.accounts.findIndex(function (x) { return x.id === existing.id; }); st.accounts[i] = rec; }
       else st.accounts.push(rec);
-      S.save(); closeModal(); toast("Account saved.", "success"); buildMonthPicker(); render();
+      // Register a placeholder rate so the user can set it in Settings.
+      if (currency !== S.baseCurrency() && !(st.settings.rates && st.settings.rates[currency])) {
+        st.settings.rates = st.settings.rates || {};
+        st.settings.rates[currency] = 1;
+      }
+      S.save(); closeModal();
+      toast(currency !== S.baseCurrency() ? "Account saved — set its exchange rate in Settings." : "Account saved.", "success");
+      buildMonthPicker(); render();
+    };
+  }
+
+  function goalModal(existing) {
+    var st = S.getState();
+    var g = existing || { name: "", target: "", saved: 0, targetDate: "", color: PALETTE[Math.floor(Math.random() * PALETTE.length)] };
+    openModal(
+      "<h2>" + (existing ? "Edit" : "Add") + " Goal</h2>" +
+      '<div class="form-row"><label>Name</label><input id="g-name" value="' + escAttr(g.name) + '" placeholder="e.g. Emergency Fund" /></div>' +
+      '<div class="form-grid-2"><div class="form-row"><label>Target amount (' + S.baseCurrency() + ')</label><input id="g-target" type="number" step="0.01" min="0" value="' + (g.target || "") + '" /></div>' +
+      '<div class="form-row"><label>Already saved</label><input id="g-saved" type="number" step="0.01" min="0" value="' + (g.saved || 0) + '" /></div></div>' +
+      '<div class="form-grid-2"><div class="form-row"><label>Target date (optional)</label><input id="g-date" type="date" value="' + (g.targetDate || "") + '" /></div>' +
+      '<div class="form-row"><label>Color</label><input id="g-color" type="color" value="' + (g.color || "#4f6ef7") + '" style="height:42px;padding:4px" /></div></div>' +
+      modalActions()
+    );
+    $("#modal-save").onclick = function () {
+      var name = $("#g-name").value.trim();
+      var target = parseFloat($("#g-target").value);
+      if (!name) return toast("Enter a name.", "error");
+      if (!(target > 0)) return toast("Enter a target amount.", "error");
+      var rec = { id: existing ? existing.id : S.uid(), name: name, target: target, saved: parseFloat($("#g-saved").value) || 0, targetDate: $("#g-date").value || "", color: $("#g-color").value };
+      if (existing) { var i = st.goals.findIndex(function (x) { return x.id === existing.id; }); st.goals[i] = rec; }
+      else st.goals.push(rec);
+      S.save(); closeModal(); toast("Goal saved.", "success"); render();
+    };
+  }
+
+  function goalFundsModal(goal) {
+    openModal(
+      "<h2>Update “" + escHtml(goal.name) + "”</h2>" +
+      '<p class="muted small" style="margin-bottom:14px">Currently saved: <strong>' + S.fmtMoney(goal.saved) + "</strong> of " + S.fmtMoney(goal.target) + ".</p>" +
+      '<div class="form-row"><label>Amount to add (use a negative number to withdraw)</label><input id="gf-amount" type="number" step="0.01" value="" placeholder="e.g. 250" /></div>' +
+      modalActions()
+    );
+    $("#modal-save").onclick = function () {
+      var delta = parseFloat($("#gf-amount").value);
+      if (isNaN(delta) || delta === 0) return toast("Enter an amount.", "error");
+      var st = S.getState();
+      var i = st.goals.findIndex(function (x) { return x.id === goal.id; });
+      st.goals[i].saved = Math.max(0, (st.goals[i].saved || 0) + delta);
+      S.save(); closeModal(); toast((delta > 0 ? "Added " : "Withdrew ") + S.fmtMoney(Math.abs(delta)) + ".", "success"); render();
     };
   }
 
@@ -487,11 +699,21 @@
       "<h2>" + (existing ? "Edit" : "New") + " Transfer</h2>" +
       '<div class="form-grid-2"><div class="form-row"><label>From account</label>' + opts("tr-from", t.accountId) + "</div>" +
       '<div class="form-row"><label>To account</label>' + opts("tr-to", t.toAccountId) + "</div></div>" +
-      '<div class="form-grid-2"><div class="form-row"><label>Amount</label><input id="tr-amount" type="number" step="0.01" min="0" value="' + (t.amount || "") + '" /></div>' +
+      '<div class="form-grid-2"><div class="form-row"><label>Amount (in source currency)</label><input id="tr-amount" type="number" step="0.01" min="0" value="' + (t.amount || "") + '" /></div>' +
       '<div class="form-row"><label>Date</label><input id="tr-date" type="date" value="' + t.date + '" /></div></div>' +
       '<div class="form-row"><label>Note (optional)</label><input id="tr-note" value="' + escAttr(t.note || "") + '" placeholder="e.g. Move to savings" /></div>' +
+      '<div class="small muted" id="tr-hint" style="margin-bottom:4px"></div>' +
       modalActions()
     );
+    function updateHint() {
+      var fromCur = S.accountCurrency($("#tr-from").value), toCur = S.accountCurrency($("#tr-to").value);
+      var amt = parseFloat($("#tr-amount").value);
+      var hint = "";
+      if (fromCur !== toCur && amt > 0) hint = "Converts to " + S.fmtMoney(S.convert(amt, fromCur, toCur), { currency: toCur }) + " at current rates.";
+      $("#tr-hint").textContent = hint;
+    }
+    $("#tr-from").onchange = updateHint; $("#tr-to").onchange = updateHint; $("#tr-amount").oninput = updateHint;
+    updateHint();
     $("#modal-save").onclick = function () {
       var from = $("#tr-from").value, to = $("#tr-to").value;
       var amount = parseFloat($("#tr-amount").value);
@@ -582,6 +804,14 @@
       var cat = st.categories.find(function (x) { return x.id === id; });
       if (act === "edit-cat") categoryModal(cat);
       else deleteCategory(cat);
+    } else if (ui.view === "goals") {
+      var g = st.goals.find(function (x) { return x.id === id; });
+      if (act === "edit-goal") goalModal(g);
+      else if (act === "fund-goal") goalFundsModal(g);
+      else confirmModal("Delete the “" + escHtml(g.name) + "” goal?", function () {
+        st.goals = st.goals.filter(function (x) { return x.id !== id; });
+        S.save(); toast("Goal deleted.", "success"); render();
+      });
     } else if (ui.view === "budgets") {
       var b = st.budgets.find(function (x) { return x.id === id; });
       if (act === "edit-budget") budgetModal(b);
@@ -650,12 +880,20 @@
       $("#tx-cat").onchange = function (e) { ui.txFilter.category = e.target.value; rerenderBody(); };
     } else if (ui.view === "budgets") {
       if ($("#budget-add")) $("#budget-add").onclick = function () { budgetModal(); };
+    } else if (ui.view === "goals") {
+      $("#goal-add").onclick = function () { goalModal(); };
     } else if (ui.view === "recurring") {
       $("#rec-add").onclick = function () { recurringModal(); };
     } else if (ui.view === "accounts") {
       $("#acct-add").onclick = function () { accountModal(); };
     } else if (ui.view === "categories") {
       $("#cat-add").onclick = function () { categoryModal(); };
+    } else if (ui.view === "reports") {
+      $("#report-print").onclick = function () { window.print(); };
+      $("#report-period").onclick = function (e) {
+        var b = e.target.closest("[data-period]"); if (!b) return;
+        ui.reportPeriod = b.getAttribute("data-period"); render();
+      };
     } else if (ui.view === "settings") {
       wireSettings();
     }
@@ -663,7 +901,16 @@
 
   function wireSettings() {
     var st = S.getState();
-    $("#set-currency").onchange = function (e) { st.settings.currency = e.target.value; S.save(); toast("Currency updated.", "success"); render(); };
+    $("#set-currency").onchange = function (e) { st.settings.baseCurrency = e.target.value; S.save(); toast("Base currency updated.", "success"); render(); };
+    $all(".rate-input").forEach(function (inp) {
+      inp.onchange = function () {
+        var cur = inp.getAttribute("data-cur");
+        var v = parseFloat(inp.value);
+        st.settings.rates = st.settings.rates || {};
+        st.settings.rates[cur] = (v > 0) ? v : 1;
+        S.save(); toast("Rate for " + cur + " updated.", "success"); render();
+      };
+    });
     $("#theme-light").onclick = function () { applyTheme("light"); render(); };
     $("#theme-dark").onclick = function () { applyTheme("dark"); render(); };
     $("#export-data").onclick = exportData;
@@ -834,7 +1081,7 @@
   /* ============================================================
      RENDER
      ============================================================ */
-  var TITLES = { dashboard: "Dashboard", transactions: "Transactions", budgets: "Budgets", recurring: "Recurring & Bills", accounts: "Accounts", categories: "Categories", settings: "Settings" };
+  var TITLES = { dashboard: "Dashboard", transactions: "Transactions", budgets: "Budgets", goals: "Goals", recurring: "Recurring & Bills", accounts: "Accounts", categories: "Categories", reports: "Reports", settings: "Settings" };
 
   function rerenderBody() {
     // Lightweight re-render used by transaction filters (keeps toolbar inputs focused)

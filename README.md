@@ -15,16 +15,42 @@ on your device.
   stays correct.
 - **🎯 Budgets** — set monthly limits per category and watch progress bars turn
   amber/red as you approach or exceed them.
+- **🏆 Goals** — set savings goals with a target amount and optional target date,
+  add/withdraw funds, and track progress (with the required monthly pace to hit
+  your deadline).
 - **🔁 Recurring & Bills** — track recurring income/expenses, see upcoming due
   dates, and log a payment with one click to roll the date forward.
-- **🏦 Accounts** — multiple accounts (bank, cash, credit card, etc.) with live
-  computed balances.
+- **🏦 Accounts** — multiple accounts (bank, cash, credit card, etc.), each in
+  **its own currency**, with live computed balances.
 - **🏷️ Categories** — add, rename, recolor, and delete your own income/expense
   categories. Deleting a category that's in use safely reassigns its
   transactions to another category of the same type.
-- **⚙️ Settings** — choose your currency, toggle light/dark theme, export/import
-  a JSON backup, **import/export transactions as CSV**, load demo data, or wipe
-  everything.
+- **📄 Reports** — a printable financial report for this month / last 3 months /
+  this year / all time, with income & expense category breakdowns, account
+  balances, and goal progress. **Export to PDF** via your browser's print dialog.
+- **⚙️ Settings** — choose your base currency, manage exchange rates, toggle
+  light/dark theme, export/import a JSON backup, **import/export transactions as
+  CSV**, load demo data, or wipe everything.
+
+## Multi-currency
+
+Each account has its own currency, and one **base currency** (set in Settings)
+is used for all cross-account reporting — net worth, the dashboard, budgets, and
+reports are converted into it using the **exchange rates** you maintain under
+**Settings → Exchange Rates** (`1 EUR = ? USD`, etc.). Account balances and
+individual transactions are shown in each account's own currency, with the base
+equivalent alongside. Transfers between accounts in different currencies are
+converted at your current rates, so net worth stays consistent.
+
+> Rates are entered manually (the app is fully offline and makes no network
+> calls). Update them whenever you like.
+
+## Reports & PDF export
+
+The **Reports** view builds a clean summary for the period you pick. Click
+**Save as PDF** to open your browser's print dialog — choose "Save as PDF" as the
+destination. A print stylesheet hides the navigation and chrome so only the
+report is printed.
 
 ## CSV import/export
 

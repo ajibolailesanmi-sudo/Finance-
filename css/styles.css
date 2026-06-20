@@ -185,3 +185,19 @@ label { font-size: 12px; font-weight: 600; color: var(--text-soft); display: blo
 .nowrap { white-space: nowrap; }
 .due-soon { color: var(--warn); font-weight: 600; }
 .overdue { color: var(--expense); font-weight: 600; }
+
+.report-head { margin-bottom: 18px; }
+.report-head h2 { font-size: 22px; }
+
+/* ===== Print / PDF ===== */
+@media print {
+  @page { margin: 14mm; }
+  body { background: #fff; color: #000; font-size: 12px; }
+  #app { display: block; }
+  .sidebar, .topbar, .no-print, .toast-host, .icon-btn { display: none !important; }
+  .content, .view-root { padding: 0 !important; }
+  .card { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; page-break-inside: avoid; }
+  .cols-2, .stat-grid { grid-template-columns: 1fr 1fr !important; }
+  .stat .stat-value { font-size: 20px; }
+  a[href]:after { content: ""; }
+}
