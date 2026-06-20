@@ -10,15 +10,41 @@ on your device.
   hand-drawn SVG charts: net-worth trend, income-vs-expense bars, and a
   spending-by-category donut.
 - **💸 Transactions** — log income and expenses across accounts, with search and
-  filtering by type and category.
+  filtering by type and category. Also record **transfers between accounts** —
+  these move money without counting as income or expense, so your net worth
+  stays correct.
 - **🎯 Budgets** — set monthly limits per category and watch progress bars turn
   amber/red as you approach or exceed them.
 - **🔁 Recurring & Bills** — track recurring income/expenses, see upcoming due
   dates, and log a payment with one click to roll the date forward.
 - **🏦 Accounts** — multiple accounts (bank, cash, credit card, etc.) with live
   computed balances.
+- **🏷️ Categories** — add, rename, recolor, and delete your own income/expense
+  categories. Deleting a category that's in use safely reassigns its
+  transactions to another category of the same type.
 - **⚙️ Settings** — choose your currency, toggle light/dark theme, export/import
-  a JSON backup, load demo data, or wipe everything.
+  a JSON backup, **import/export transactions as CSV**, load demo data, or wipe
+  everything.
+
+## CSV import/export
+
+Under **Settings → Transactions CSV** you can bulk-import transactions or export
+them as a spreadsheet. The expected columns are:
+
+```
+date,type,amount,category,account,note
+2026-05-02,expense,55.20,Groceries,Checking,Weekly shop
+2026-05-03,income,1500,Salary,Checking,Pay
+```
+
+- `date` accepts `YYYY-MM-DD` or `M/D/YYYY`.
+- `type` is `income` or `expense`. If omitted, a negative `amount` is treated as
+  an expense and a positive one as income.
+- Unknown `category` or `account` names are **created automatically** on import.
+- Rows with an unparseable date or amount are skipped, and you get a preview of
+  what will be imported before anything is committed.
+
+Use **Download CSV template** to get a correctly-formatted starter file.
 
 ## Privacy
 
@@ -44,7 +70,7 @@ python3 -m http.server 8000
 ```
 index.html        markup + layout
 css/styles.css    theming (light/dark), components, responsive layout
-js/store.js       state, localStorage persistence, derived metrics
+js/store.js       state, localStorage persistence, derived metrics, CSV helpers
 js/charts.js      dependency-free SVG charts (donut, bars, line)
 js/app.js         UI controller: routing, views, modals, forms
 ```

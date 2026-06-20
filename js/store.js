@@ -113,6 +113,11 @@
     if (!acct) return 0;
     var bal = Number(acct.openingBalance) || 0;
     state.transactions.forEach(function (t) {
+      if (t.type === "transfer") {
+        if (t.accountId === accountId) bal -= t.amount;       // money leaves source
+        if (t.toAccountId === accountId) bal += t.amount;      // money enters destination
+        return;
+      }
       if (t.accountId !== accountId) return;
       bal += t.type === "income" ? t.amount : -t.amount;
     });
@@ -130,7 +135,8 @@
   function monthTotals(key) {
     var income = 0, expense = 0;
     transactionsInMonth(key).forEach(function (t) {
-      if (t.type === "income") income += t.amount; else expense += t.amount;
+      if (t.type === "income") income += t.amount;
+      else if (t.type === "expense") expense += t.amount;   // transfers excluded
     });
     return { income: income, expense: expense, net: income - expense };
   }
@@ -168,7 +174,9 @@
     var firstKey = series.length ? series[0].key : endKey;
     var priorNet = 0;
     state.transactions.forEach(function (t) {
-      if (monthKey(t.date) < firstKey) priorNet += t.type === "income" ? t.amount : -t.amount;
+      if (monthKey(t.date) >= firstKey) return;
+      if (t.type === "income") priorNet += t.amount;
+      else if (t.type === "expense") priorNet -= t.amount;   // transfers net to zero
     });
     var running = openings + priorNet;
     return series.map(function (m) {
@@ -198,6 +206,69 @@
     var now = new Date();
     now.setHours(0, 0, 0, 0);
     return Math.round((target - now) / 86400000);
+  }
+
+  /* ---------- CSV helpers (import / export) ---------- */
+  // RFC-4180-ish parser: handles quoted fields, escaped quotes, CRLF. Returns rows of cells.
+  function parseCSVRows(text) {
+    var rows = [], row = [], field = "", inQ = false;
+    text = String(text).replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+    for (var i = 0; i < text.length; i++) {
+      var ch = text[i];
+      if (inQ) {
+        if (ch === '"') { if (text[i + 1] === '"') { field += '"'; i++; } else inQ = false; }
+        else field += ch;
+      } else if (ch === '"') inQ = true;
+      else if (ch === ",") { row.push(field); field = ""; }
+      else if (ch === "\n") { row.push(field); rows.push(row); row = []; field = ""; }
+      else field += ch;
+    }
+    if (field.length || row.length) { row.push(field); rows.push(row); }
+    return rows;
+  }
+
+  // Parse CSV text into objects keyed by lowercased header names.
+  function csvToObjects(text) {
+    var rows = parseCSVRows(text).filter(function (r) { return r.some(function (c) { return String(c).trim() !== ""; }); });
+    if (rows.length < 2) return [];
+    var headers = rows[0].map(function (h) { return String(h).trim().toLowerCase(); });
+    return rows.slice(1).map(function (r) {
+      var o = {};
+      headers.forEach(function (h, i) { o[h] = (r[i] != null ? String(r[i]).trim() : ""); });
+      return o;
+    });
+  }
+
+  // Serialize records (array of objects) to CSV given an ordered header list.
+  function toCSV(headers, records) {
+    function q(v) { v = String(v == null ? "" : v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
+    var lines = [headers.join(",")];
+    records.forEach(function (rec) { lines.push(headers.map(function (h) { return q(rec[h]); }).join(",")); });
+    return lines.join("\n");
+  }
+
+  // Best-effort date parsing → ISO yyyy-mm-dd, or null if unparseable.
+  function parseDateLoose(s) {
+    s = String(s || "").trim();
+    if (!s) return null;
+    if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0, 10);
+    var m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
+    if (m) {                                   // assume M/D/Y (most common in exports)
+      var mm = m[1], dd = m[2], yy = m[3];
+      if (yy.length === 2) yy = "20" + yy;
+      return yy + "-" + String(mm).padStart(2, "0") + "-" + String(dd).padStart(2, "0");
+    }
+    var d = new Date(s);
+    return isNaN(d.getTime()) ? null : d.toISOString().slice(0, 10);
+  }
+
+  // Parse a possibly-formatted amount string ("$1,234.50", "(50)") → number or NaN.
+  function parseAmountLoose(s) {
+    s = String(s == null ? "" : s).trim();
+    var neg = /^\(.*\)$/.test(s);                // accounting-style negatives
+    var n = parseFloat(s.replace(/[(),$£€₦]/g, "").replace(/[^0-9.\-]/g, ""));
+    if (isNaN(n)) return NaN;
+    return neg ? -Math.abs(n) : n;
   }
 
   /* ---------- Demo data (optional, from Settings) ---------- */
@@ -266,6 +337,10 @@
     monthlySeries: monthlySeries,
     netWorthSeries: netWorthSeries,
     addToDate: addToDate,
-    daysUntil: daysUntil
+    daysUntil: daysUntil,
+    csvToObjects: csvToObjects,
+    toCSV: toCSV,
+    parseDateLoose: parseDateLoose,
+    parseAmountLoose: parseAmountLoose
   };
 })(window);

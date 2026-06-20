@@ -133,21 +133,34 @@
       return '<option value="' + c.id + '"' + (ui.txFilter.category === c.id ? " selected" : "") + ">" + c.name + "</option>";
     }).join("");
 
+    function typeOpt(v, label) { return '<option value="' + v + '"' + (ui.txFilter.type === v ? " selected" : "") + ">" + label + "</option>"; }
     var toolbar = '<div class="toolbar">' +
       '<input class="search" id="tx-search" placeholder="Search notes…" value="' + escAttr(ui.txFilter.search) + '" />' +
-      '<select id="tx-type"><option value="all">All types</option><option value="income"' + (ui.txFilter.type === "income" ? " selected" : "") + '>Income</option><option value="expense"' + (ui.txFilter.type === "expense" ? " selected" : "") + '>Expense</option></select>' +
+      '<select id="tx-type"><option value="all">All types</option>' + typeOpt("income", "Income") + typeOpt("expense", "Expense") + typeOpt("transfer", "Transfer") + "</select>" +
       '<select id="tx-cat">' + catOptions + "</select>" +
+      '<button class="ghost-btn" id="tx-transfer" style="width:auto">⇄ Transfer</button>' +
       '<button class="primary-btn" id="tx-add">+ Add</button></div>';
 
     var list = filteredTransactions().sort(function (a, b) { return b.date < a.date ? -1 : 1; });
     var rows = list.map(function (t) {
+      if (t.type === "transfer") {
+        var from = S.accountById(t.accountId), to = S.accountById(t.toAccountId);
+        return '<tr data-id="' + t.id + '">' +
+          "<td>" + t.date + "</td>" +
+          '<td><span class="dot" style="background:var(--muted)"></span><span class="muted">⇄ Transfer</span></td>' +
+          "<td>" + (t.note ? escHtml(t.note) : '<span class="muted">—</span>') + "</td>" +
+          "<td>" + (from ? escHtml(from.name) : "—") + ' <span class="muted">→</span> ' + (to ? escHtml(to.name) : "—") + "</td>" +
+          '<td class="amount-cell muted">' + S.fmtMoney(t.amount) + "</td>" +
+          '<td class="nowrap"><button class="icon-btn" data-act="edit">✏️</button><button class="icon-btn" data-act="del">🗑️</button></td>' +
+          "</tr>";
+      }
       var c = S.categoryById(t.categoryId);
       var a = S.accountById(t.accountId);
       return '<tr data-id="' + t.id + '">' +
         "<td>" + t.date + "</td>" +
-        '<td><span class="dot" style="background:' + (c ? c.color : "#888") + '"></span>' + (c ? c.name : "—") + "</td>" +
+        '<td><span class="dot" style="background:' + (c ? c.color : "#888") + '"></span>' + (c ? escHtml(c.name) : "—") + "</td>" +
         "<td>" + (t.note ? escHtml(t.note) : '<span class="muted">—</span>') + "</td>" +
-        "<td>" + (a ? a.name : "—") + "</td>" +
+        "<td>" + (a ? escHtml(a.name) : "—") + "</td>" +
         '<td class="amount-cell ' + (t.type === "income" ? "pos" : "neg") + '">' + (t.type === "income" ? "+" : "−") + S.fmtMoney(t.amount) + "</td>" +
         '<td class="nowrap"><button class="icon-btn" data-act="edit">✏️</button><button class="icon-btn" data-act="del">🗑️</button></td>' +
         "</tr>";
@@ -260,6 +273,31 @@
       rows + "</tbody></table></div>";
   };
 
+  // ---------- Categories ----------
+  Views.categories = function () {
+    var st = S.getState();
+    function usage(catId) {
+      var n = st.transactions.filter(function (t) { return t.categoryId === catId; }).length;
+      return n;
+    }
+    function section(type, title) {
+      var cats = st.categories.filter(function (c) { return c.type === type; });
+      var rows = cats.map(function (c) {
+        return '<tr data-id="' + c.id + '">' +
+          '<td><span class="dot" style="background:' + c.color + '"></span><strong>' + escHtml(c.name) + "</strong></td>" +
+          '<td class="muted">' + usage(c.id) + " transactions</td>" +
+          '<td class="nowrap" style="text-align:right"><button class="icon-btn" data-act="edit-cat">✏️</button><button class="icon-btn" data-act="del-cat">🗑️</button></td>' +
+          "</tr>";
+      }).join("");
+      var body = cats.length ? '<table class="table"><tbody>' + rows + "</tbody></table>" : '<div class="muted small">No ' + type + " categories.</div>";
+      return '<div class="card"><div class="card-title">' + title + "</div>" + body + "</div>";
+    }
+    return '<div class="toolbar" style="justify-content:space-between">' +
+      '<span class="muted small">Categories drive your transactions, budgets and charts. Pick a color for each.</span>' +
+      '<button class="primary-btn" id="cat-add">+ Add Category</button></div>' +
+      '<div class="grid cols-2">' + section("income", "Income Categories") + section("expense", "Expense Categories") + "</div>";
+  };
+
   // ---------- Settings ----------
   Views.settings = function () {
     var st = S.getState();
@@ -274,9 +312,15 @@
       '<div class="card"><div class="card-title">Your Data</div>' +
       '<p class="muted small" style="margin-bottom:14px">Everything is stored privately in this browser. Export regularly to keep a backup.</p>' +
       '<div class="form-row"><button class="ghost-btn" id="export-data">⬇️ Export backup (JSON)</button></div>' +
-      '<div class="form-row"><button class="ghost-btn" id="import-data">⬆️ Import backup</button><input type="file" id="import-file" accept="application/json" style="display:none" /></div>' +
+      '<div class="form-row"><button class="ghost-btn" id="import-data">⬆️ Import backup (JSON)</button><input type="file" id="import-file" accept="application/json" style="display:none" /></div>' +
       '<div class="form-row"><button class="ghost-btn" id="load-demo">✨ Load demo data</button></div>' +
       '<div class="form-row"><button class="danger-btn" id="reset-data" style="width:100%">⚠️ Erase all data</button></div>' +
+      "</div>" +
+      '<div class="card"><div class="card-title">Transactions CSV</div>' +
+      '<p class="muted small" style="margin-bottom:14px">Bulk-import transactions, or export them as a spreadsheet. Columns: <code>date, type, amount, category, account, note</code>. Missing categories/accounts are created automatically.</p>' +
+      '<div class="form-row"><button class="ghost-btn" id="import-csv">⬆️ Import transactions (CSV)</button><input type="file" id="import-csv-file" accept=".csv,text/csv" style="display:none" /></div>' +
+      '<div class="form-row"><button class="ghost-btn" id="export-csv">⬇️ Export transactions (CSV)</button></div>' +
+      '<div class="form-row"><button class="ghost-btn" id="download-template">📄 Download CSV template</button></div>' +
       "</div></div>";
   };
 
@@ -430,13 +474,77 @@
     };
   }
 
+  function transferModal(existing) {
+    var st = S.getState();
+    if (st.accounts.length < 2) { toast("You need at least two accounts to transfer.", "error"); return; }
+    var t = existing || { amount: "", date: S.todayISO(), note: "", accountId: st.accounts[0].id, toAccountId: st.accounts[1].id };
+    function opts(id, sel) {
+      return '<select id="' + id + '">' + st.accounts.map(function (a) {
+        return '<option value="' + a.id + '"' + (a.id === sel ? " selected" : "") + ">" + escHtml(a.name) + "</option>";
+      }).join("") + "</select>";
+    }
+    openModal(
+      "<h2>" + (existing ? "Edit" : "New") + " Transfer</h2>" +
+      '<div class="form-grid-2"><div class="form-row"><label>From account</label>' + opts("tr-from", t.accountId) + "</div>" +
+      '<div class="form-row"><label>To account</label>' + opts("tr-to", t.toAccountId) + "</div></div>" +
+      '<div class="form-grid-2"><div class="form-row"><label>Amount</label><input id="tr-amount" type="number" step="0.01" min="0" value="' + (t.amount || "") + '" /></div>' +
+      '<div class="form-row"><label>Date</label><input id="tr-date" type="date" value="' + t.date + '" /></div></div>' +
+      '<div class="form-row"><label>Note (optional)</label><input id="tr-note" value="' + escAttr(t.note || "") + '" placeholder="e.g. Move to savings" /></div>' +
+      modalActions()
+    );
+    $("#modal-save").onclick = function () {
+      var from = $("#tr-from").value, to = $("#tr-to").value;
+      var amount = parseFloat($("#tr-amount").value);
+      if (from === to) return toast("Pick two different accounts.", "error");
+      if (!(amount > 0)) return toast("Enter a valid amount.", "error");
+      var rec = { id: existing ? existing.id : S.uid(), type: "transfer", amount: amount, date: $("#tr-date").value || S.todayISO(), accountId: from, toAccountId: to, note: $("#tr-note").value.trim() };
+      if (existing) { var i = st.transactions.findIndex(function (x) { return x.id === existing.id; }); st.transactions[i] = rec; }
+      else st.transactions.push(rec);
+      S.save(); closeModal(); toast(existing ? "Transfer updated." : "Transfer recorded.", "success"); render();
+    };
+  }
+
+  var PALETTE = ["#4f6ef7", "#1faa6c", "#e6a23c", "#9b59f5", "#e2574c", "#18b6c4", "#e879a6", "#f2994a", "#6b87ff", "#36c98a", "#8b95a7", "#5b6678"];
+  function categoryModal(existing) {
+    var st = S.getState();
+    var c = existing || { name: "", type: "expense", color: PALETTE[Math.floor(Math.random() * PALETTE.length)] };
+    openModal(
+      "<h2>" + (existing ? "Edit" : "Add") + " Category</h2>" +
+      '<div class="form-row"><label>Name</label><input id="c-name" value="' + escAttr(c.name) + '" placeholder="e.g. Pets" /></div>' +
+      '<div class="form-row"><label>Type</label><div class="seg"><button id="c-expense" class="' + (c.type === "expense" ? "active" : "") + '"' + (existing ? " disabled" : "") + '>Expense</button><button id="c-income" class="' + (c.type === "income" ? "active" : "") + '"' + (existing ? " disabled" : "") + ">Income</button></div></div>" +
+      '<div class="form-row"><label>Color</label><input id="c-color" type="color" value="' + c.color + '" style="height:42px;padding:4px" /></div>' +
+      modalActions()
+    );
+    var type = c.type;
+    if (!existing) {
+      $("#c-expense").onclick = function () { type = "expense"; $("#c-expense").classList.add("active"); $("#c-income").classList.remove("active"); };
+      $("#c-income").onclick = function () { type = "income"; $("#c-income").classList.add("active"); $("#c-expense").classList.remove("active"); };
+    }
+    $("#modal-save").onclick = function () {
+      var name = $("#c-name").value.trim();
+      if (!name) return toast("Enter a name.", "error");
+      var dup = st.categories.find(function (x) { return x.name.toLowerCase() === name.toLowerCase() && x.type === type && (!existing || x.id !== existing.id); });
+      if (dup) return toast("A " + type + " category with that name already exists.", "error");
+      if (existing) {
+        var i = st.categories.findIndex(function (x) { return x.id === existing.id; });
+        st.categories[i].name = name; st.categories[i].color = $("#c-color").value;
+      } else {
+        st.categories.push({ id: S.uid(), name: name, type: type, color: $("#c-color").value });
+      }
+      S.save(); closeModal(); toast("Category saved.", "success"); render();
+    };
+  }
+
   function modalActions() {
     return '<div class="modal-actions"><button class="ghost-btn" id="modal-cancel" style="width:auto">Cancel</button><button class="primary-btn" id="modal-save">Save</button></div>';
   }
 
-  function confirmModal(message, onYes) {
-    openModal('<h2>Are you sure?</h2><p class="muted" style="margin-bottom:8px">' + message + "</p>" +
-      '<div class="modal-actions"><button class="ghost-btn" id="modal-cancel" style="width:auto">Cancel</button><button class="danger-btn" id="modal-yes">Delete</button></div>');
+  function confirmModal(message, onYes, opts) {
+    opts = opts || {};
+    var label = opts.yesLabel || "Delete";
+    var cls = opts.danger === false ? "primary-btn" : "danger-btn";
+    openModal('<h2>' + (opts.title || "Are you sure?") + '</h2><p class="muted" style="margin-bottom:8px">' + message + "</p>" +
+      '<div class="modal-actions"><button class="ghost-btn" id="modal-cancel" style="width:auto">Cancel</button><button class="' + cls + '" id="modal-yes">' + label + "</button></div>");
     $("#modal-yes").onclick = function () { onYes(); closeModal(); };
   }
 
@@ -465,11 +573,15 @@
 
     if (ui.view === "transactions") {
       var tx = st.transactions.find(function (x) { return x.id === id; });
-      if (act === "edit") txModal(tx);
-      else confirmModal("Delete this transaction?", function () {
+      if (act === "edit") (tx.type === "transfer" ? transferModal : txModal)(tx);
+      else confirmModal((tx.type === "transfer" ? "Delete this transfer?" : "Delete this transaction?"), function () {
         st.transactions = st.transactions.filter(function (x) { return x.id !== id; });
         S.save(); toast("Deleted.", "success"); render();
       });
+    } else if (ui.view === "categories") {
+      var cat = st.categories.find(function (x) { return x.id === id; });
+      if (act === "edit-cat") categoryModal(cat);
+      else deleteCategory(cat);
     } else if (ui.view === "budgets") {
       var b = st.budgets.find(function (x) { return x.id === id; });
       if (act === "edit-budget") budgetModal(b);
@@ -493,18 +605,46 @@
     } else if (ui.view === "accounts") {
       var a = st.accounts.find(function (x) { return x.id === id; });
       if (act === "edit") accountModal(a);
-      else confirmModal("Delete account \"" + escHtml(a.name) + "\"? Its transactions will also be removed.", function () {
+      else confirmModal("Delete account \"" + escHtml(a.name) + "\"? Its transactions and transfers will also be removed.", function () {
         st.accounts = st.accounts.filter(function (x) { return x.id !== id; });
-        st.transactions = st.transactions.filter(function (x) { return x.accountId !== id; });
+        st.transactions = st.transactions.filter(function (x) { return x.accountId !== id && x.toAccountId !== id; });
         st.recurring = st.recurring.filter(function (x) { return x.accountId !== id; });
         S.save(); toast("Account deleted.", "success"); buildMonthPicker(); render();
       });
     }
   }
 
+  // Delete a category, reassigning anything that referenced it to another category of the same type.
+  function deleteCategory(cat) {
+    var st = S.getState();
+    var fallback = st.categories.find(function (c) { return c.type === cat.type && c.id !== cat.id; });
+    var txCount = st.transactions.filter(function (t) { return t.categoryId === cat.id; }).length;
+    var recCount = st.recurring.filter(function (r) { return r.categoryId === cat.id; }).length;
+    var budCount = st.budgets.filter(function (b) { return b.categoryId === cat.id; }).length;
+    var inUse = txCount + recCount + budCount;
+
+    if (inUse && !fallback) {
+      toast("Add another " + cat.type + " category before deleting this one.", "error");
+      return;
+    }
+    var msg = inUse
+      ? "“" + escHtml(cat.name) + "” is used by " + txCount + " transaction(s) and " + recCount + " recurring item(s), which will be moved to “" + escHtml(fallback.name) + "”. Its budget will be removed."
+      : "Delete the “" + escHtml(cat.name) + "” category?";
+    confirmModal(msg, function () {
+      if (inUse) {
+        st.transactions.forEach(function (t) { if (t.categoryId === cat.id) t.categoryId = fallback.id; });
+        st.recurring.forEach(function (r) { if (r.categoryId === cat.id) r.categoryId = fallback.id; });
+        st.budgets = st.budgets.filter(function (b) { return b.categoryId !== cat.id; });
+      }
+      st.categories = st.categories.filter(function (c) { return c.id !== cat.id; });
+      S.save(); toast("Category deleted.", "success"); render();
+    });
+  }
+
   function wireView() {
     if (ui.view === "transactions") {
       $("#tx-add").onclick = function () { txModal(); };
+      $("#tx-transfer").onclick = function () { transferModal(); };
       $("#tx-search").oninput = function (e) { ui.txFilter.search = e.target.value; rerenderBody(); };
       $("#tx-type").onchange = function (e) { ui.txFilter.type = e.target.value; rerenderBody(); };
       $("#tx-cat").onchange = function (e) { ui.txFilter.category = e.target.value; rerenderBody(); };
@@ -514,6 +654,8 @@
       $("#rec-add").onclick = function () { recurringModal(); };
     } else if (ui.view === "accounts") {
       $("#acct-add").onclick = function () { accountModal(); };
+    } else if (ui.view === "categories") {
+      $("#cat-add").onclick = function () { categoryModal(); };
     } else if (ui.view === "settings") {
       wireSettings();
     }
@@ -527,12 +669,14 @@
     $("#export-data").onclick = exportData;
     $("#import-data").onclick = function () { $("#import-file").click(); };
     $("#import-file").onchange = importData;
+    $("#import-csv").onclick = function () { $("#import-csv-file").click(); };
+    $("#import-csv-file").onchange = importCSV;
+    $("#export-csv").onclick = exportCSV;
+    $("#download-template").onclick = downloadTemplate;
     $("#load-demo").onclick = function () {
       confirmModal("Load demo data? This replaces everything currently stored.", function () {
         S.loadDemoData(); applyTheme(S.getState().settings.theme); ui.month = S.monthKey(S.todayISO()); buildMonthPicker(); toast("Demo data loaded.", "success"); render();
-      });
-      // Repurpose the confirm button label
-      if ($("#modal-yes")) $("#modal-yes").textContent = "Load";
+      }, { yesLabel: "Load", danger: false });
     };
     $("#reset-data").onclick = function () {
       confirmModal("Erase ALL data permanently? This cannot be undone.", function () {
@@ -541,13 +685,123 @@
     };
   }
 
-  function exportData() {
-    var blob = new Blob([JSON.stringify(S.getState(), null, 2)], { type: "application/json" });
+  function downloadFile(content, filename, mime) {
+    var blob = new Blob([content], { type: mime });
     var url = URL.createObjectURL(blob);
     var a = document.createElement("a");
-    a.href = url; a.download = "fintrack-backup-" + S.todayISO() + ".json";
+    a.href = url; a.download = filename;
     a.click(); URL.revokeObjectURL(url);
+  }
+
+  function exportData() {
+    downloadFile(JSON.stringify(S.getState(), null, 2), "fintrack-backup-" + S.todayISO() + ".json", "application/json");
     toast("Backup downloaded.", "success");
+  }
+
+  /* ---------- CSV export / template / import ---------- */
+  var CSV_HEADERS = ["date", "type", "amount", "category", "account", "note"];
+
+  function txToRow(t) {
+    var c = S.categoryById(t.categoryId), a = S.accountById(t.accountId);
+    if (t.type === "transfer") {
+      var to = S.accountById(t.toAccountId);
+      return { date: t.date, type: "transfer", amount: t.amount, category: "", account: (a ? a.name : "") + " > " + (to ? to.name : ""), note: t.note || "" };
+    }
+    return { date: t.date, type: t.type, amount: t.amount, category: c ? c.name : "", account: a ? a.name : "", note: t.note || "" };
+  }
+
+  function exportCSV() {
+    var rows = S.getState().transactions.slice().sort(function (a, b) { return a.date < b.date ? -1 : 1; }).map(txToRow);
+    if (!rows.length) return toast("No transactions to export.", "error");
+    downloadFile(S.toCSV(CSV_HEADERS, rows), "fintrack-transactions-" + S.todayISO() + ".csv", "text/csv");
+    toast("Transactions exported.", "success");
+  }
+
+  function downloadTemplate() {
+    var sample = [
+      { date: S.todayISO(), type: "expense", amount: "42.50", category: "Groceries", account: "Checking", note: "Example row — delete me" },
+      { date: S.todayISO(), type: "income", amount: "1500", category: "Salary", account: "Checking", note: "" }
+    ];
+    downloadFile(S.toCSV(CSV_HEADERS, sample), "fintrack-template.csv", "text/csv");
+    toast("Template downloaded.", "success");
+  }
+
+  function importCSV(e) {
+    var file = e.target.files[0]; if (!file) return;
+    e.target.value = "";   // allow re-importing the same file later
+    var reader = new FileReader();
+    reader.onload = function () {
+      try {
+        var result = buildImportFromCSV(reader.result);
+        if (!result.txs.length) { toast("No valid rows found in that CSV.", "error"); return; }
+        var parts = ["Import <strong>" + result.txs.length + "</strong> transaction(s)?"];
+        if (result.skipped) parts.push(result.skipped + " row(s) will be skipped (bad date/amount).");
+        if (result.newCats.length) parts.push("New categories: " + result.newCats.map(escHtml).join(", ") + ".");
+        if (result.newAccts.length) parts.push("New accounts: " + result.newAccts.map(escHtml).join(", ") + ".");
+        confirmModal(parts.join("<br>"), function () {
+          var st = S.getState();
+          result.addCats.forEach(function (c) { st.categories.push(c); });
+          result.addAccts.forEach(function (a) { st.accounts.push(a); });
+          result.txs.forEach(function (t) { st.transactions.push(t); });
+          S.save(); buildMonthPicker(); toast("Imported " + result.txs.length + " transaction(s).", "success"); render();
+        }, { title: "Confirm CSV import", yesLabel: "Import", danger: false });
+      } catch (err) {
+        toast("Import failed: " + err.message, "error");
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  // Pure-ish: parse CSV text and resolve categories/accounts (creating staged ones as needed).
+  // Returns { txs, addCats, addAccts, newCats, newAccts, skipped } without mutating state.
+  function buildImportFromCSV(text) {
+    var st = S.getState();
+    var objs = S.csvToObjects(text);
+    var skipped = 0, txs = [];
+    var addCats = [], addAccts = [], newCats = [], newAccts = [];
+
+    // Working copies of name→record maps (include staged additions).
+    var catMap = {}; st.categories.forEach(function (c) { catMap[c.type + "::" + c.name.toLowerCase()] = c; });
+    var acctMap = {}; st.accounts.forEach(function (a) { acctMap[a.name.toLowerCase()] = a; });
+    var defaultAcct = st.accounts[0];
+
+    function resolveCategory(name, type) {
+      name = (name || "").trim() || "Other";
+      var key = type + "::" + name.toLowerCase();
+      if (catMap[key]) return catMap[key].id;
+      var rec = { id: S.uid(), name: name, type: type, color: PALETTE[(addCats.length + 3) % PALETTE.length] };
+      catMap[key] = rec; addCats.push(rec); newCats.push(name + " (" + type + ")");
+      return rec.id;
+    }
+    function resolveAccount(name) {
+      name = (name || "").trim();
+      if (!name) return defaultAcct ? defaultAcct.id : null;
+      if (acctMap[name.toLowerCase()]) return acctMap[name.toLowerCase()].id;
+      var rec = { id: S.uid(), name: name, type: "Bank", openingBalance: 0 };
+      acctMap[name.toLowerCase()] = rec; addAccts.push(rec); newAccts.push(name);
+      if (!defaultAcct) defaultAcct = rec;
+      return rec.id;
+    }
+
+    objs.forEach(function (o) {
+      var date = S.parseDateLoose(o.date);
+      var rawAmount = S.parseAmountLoose(o.amount);
+      if (!date || isNaN(rawAmount)) { skipped++; return; }
+      var typeRaw = (o.type || "").toLowerCase();
+      var type = typeRaw === "income" ? "income" : (typeRaw === "transfer" ? "transfer" : "expense");
+      if (!typeRaw) type = rawAmount < 0 ? "expense" : "income";   // infer from sign when no type column
+      if (type === "transfer") { skipped++; return; }              // transfers need two accounts; not supported via CSV
+      var amount = Math.abs(rawAmount);
+      if (!(amount > 0)) { skipped++; return; }
+      txs.push({
+        id: S.uid(), type: type, amount: amount, date: date,
+        categoryId: resolveCategory(o.category, type),
+        accountId: resolveAccount(o.account),
+        note: (o.note || o.description || o.memo || "").trim()
+      });
+    });
+
+    return { txs: txs, addCats: addCats, addAccts: addAccts, newCats: newCats, newAccts: newAccts, skipped: skipped };
   }
 
   function importData(e) {
@@ -580,7 +834,7 @@
   /* ============================================================
      RENDER
      ============================================================ */
-  var TITLES = { dashboard: "Dashboard", transactions: "Transactions", budgets: "Budgets", recurring: "Recurring & Bills", accounts: "Accounts", settings: "Settings" };
+  var TITLES = { dashboard: "Dashboard", transactions: "Transactions", budgets: "Budgets", recurring: "Recurring & Bills", accounts: "Accounts", categories: "Categories", settings: "Settings" };
 
   function rerenderBody() {
     // Lightweight re-render used by transaction filters (keeps toolbar inputs focused)
