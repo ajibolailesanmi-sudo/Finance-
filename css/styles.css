@@ -163,6 +163,9 @@ label { font-size: 12px; font-weight: 600; color: var(--text-soft); display: blo
 .seg { display: flex; gap: 0; border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
 .seg button { flex: 1; border: none; background: var(--surface); padding: 9px; cursor: pointer; color: var(--text-soft); font-weight: 600; }
 .seg button.active { background: var(--primary); color: #fff; }
+.seg button:disabled { opacity: .55; cursor: default; }
+.check-row { display: flex; align-items: flex-start; gap: 9px; font-size: 13px; color: var(--text); cursor: pointer; margin-top: 4px; }
+.check-row input { width: auto; margin-top: 2px; }
 
 /* ===== Toast ===== */
 .toast-host { position: fixed; bottom: 22px; right: 22px; display: flex; flex-direction: column; gap: 10px; z-index: 60; }

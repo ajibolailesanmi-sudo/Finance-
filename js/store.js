@@ -269,6 +269,43 @@
     return Math.round((target - now) / 86400000);
   }
 
+  // Create a transaction representing one occurrence of a recurring item at `date`.
+  function postRecurringOccurrence(r, date) {
+    state.transactions.push({
+      id: uid(), type: r.type, amount: r.amount, date: date,
+      categoryId: r.categoryId, accountId: r.accountId,
+      note: r.name + " (recurring)", auto: true, recurringId: r.id
+    });
+  }
+
+  // Post every due occurrence of one auto-post item up to `asOfISO`, advancing its
+  // due date past each. Returns how many occurrences were posted. Guarded against
+  // runaway loops (e.g. malformed dates) by a hard cap.
+  function catchUpRecurring(r, asOfISO) {
+    var posted = 0, guard = 0;
+    while (r.active && r.autoPost && r.nextDate <= asOfISO && guard < 400) {
+      postRecurringOccurrence(r, r.nextDate);
+      r.nextDate = addToDate(r.nextDate, r.frequency);
+      posted++; guard++;
+    }
+    return posted;
+  }
+
+  // Auto-post all eligible recurring items that are due on or before `asOfISO`
+  // (defaults to today). Persists if anything changed. Returns a summary:
+  // { count, byItem: { id: n }, names: [..] }.
+  function runAutoPosts(asOfISO) {
+    asOfISO = asOfISO || todayISO();
+    var summary = { count: 0, byItem: {}, names: [] };
+    state.recurring.forEach(function (r) {
+      if (!r.active || !r.autoPost) return;
+      var n = catchUpRecurring(r, asOfISO);
+      if (n > 0) { summary.count += n; summary.byItem[r.id] = n; summary.names.push(r.name); }
+    });
+    if (summary.count) save();
+    return summary;
+  }
+
   /* ---------- CSV helpers (import / export) ---------- */
   // RFC-4180-ish parser: handles quoted fields, escaped quotes, CRLF. Returns rows of cells.
   function parseCSVRows(text) {
@@ -369,7 +406,7 @@
     s.recurring = [
       { id: uid(), name: "Rent", type: "expense", accountId: checking, categoryId: cat("Housing"), amount: 1450, frequency: "monthly", nextDate: iso(-5), active: true },
       { id: uid(), name: "Salary", type: "income", accountId: checking, categoryId: cat("Salary"), amount: 4200, frequency: "monthly", nextDate: iso(-12), active: true },
-      { id: uid(), name: "Streaming", type: "expense", accountId: checking, categoryId: cat("Subscriptions"), amount: 15.99, frequency: "monthly", nextDate: iso(-2), active: true }
+      { id: uid(), name: "Streaming", type: "expense", accountId: checking, categoryId: cat("Subscriptions"), amount: 15.99, frequency: "monthly", nextDate: iso(-2), active: true, autoPost: true }
     ];
     // A second-currency account to showcase multi-currency reporting.
     var euro = { id: uid(), name: "Euro Savings", type: "Savings", openingBalance: 2000, currency: "EUR" };
@@ -418,6 +455,8 @@
     netWorthSeries: netWorthSeries,
     addToDate: addToDate,
     daysUntil: daysUntil,
+    runAutoPosts: runAutoPosts,
+    catchUpRecurring: catchUpRecurring,
     csvToObjects: csvToObjects,
     toCSV: toCSV,
     parseDateLoose: parseDateLoose,

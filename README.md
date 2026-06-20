@@ -19,7 +19,9 @@ on your device.
   add/withdraw funds, and track progress (with the required monthly pace to hit
   your deadline).
 - **🔁 Recurring & Bills** — track recurring income/expenses, see upcoming due
-  dates, and log a payment with one click to roll the date forward.
+  dates, and log a payment with one click to roll the date forward. Or flip on
+  **⚡ auto-post** and the app logs each payment automatically when it falls due —
+  catching up any periods you missed while the app was closed.
 - **🏦 Accounts** — multiple accounts (bank, cash, credit card, etc.), each in
   **its own currency**, with live computed balances.
 - **🏷️ Categories** — add, rename, recolor, and delete your own income/expense
@@ -31,6 +33,22 @@ on your device.
 - **⚙️ Settings** — choose your base currency, manage exchange rates, toggle
   light/dark theme, export/import a JSON backup, **import/export transactions as
   CSV**, load demo data, or wipe everything.
+
+## Auto-posting recurring bills
+
+Each recurring item has an **⚡ auto-post** switch (toggle it from the Recurring &
+Bills table, or in the add/edit dialog). When it's on:
+
+- Every time you open the app, any occurrences that have come due (on or before
+  today) are logged automatically as transactions, and the due date rolls forward
+  to the next one.
+- If the app hasn't been opened in a while, it **catches up** — e.g. a monthly
+  bill that's three months overdue posts all three missed payments at their
+  correct dates.
+- Auto-posted transactions are noted as `… (recurring)` so they're easy to spot.
+- A summary toast tells you what was posted on launch.
+
+Items that are paused, or whose due date is still in the future, are left alone.
 
 ## Multi-currency
 

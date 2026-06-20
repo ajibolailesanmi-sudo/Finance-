@@ -248,12 +248,14 @@
       var days = S.daysUntil(r.nextDate);
       var cls = !r.active ? "muted" : (days < 0 ? "overdue" : (days <= 7 ? "due-soon" : ""));
       var when = days < 0 ? Math.abs(days) + "d overdue" : (days === 0 ? "Today" : "in " + days + "d");
+      var autoPill = r.autoPost ? ' <span class="pill" style="background:var(--primary-soft);color:var(--primary)" title="Posts automatically when due">⚡ Auto</span>' : "";
       return '<tr data-id="' + r.id + '">' +
-        "<td><strong>" + escHtml(r.name) + "</strong><br><span class='muted small'>" + (c ? c.name : "—") + " · " + (a ? a.name : "—") + "</span></td>" +
+        "<td><strong>" + escHtml(r.name) + "</strong>" + autoPill + "<br><span class='muted small'>" + (c ? c.name : "—") + " · " + (a ? a.name : "—") + "</span></td>" +
         '<td><span class="pill">' + r.frequency + "</span></td>" +
         "<td>" + r.nextDate + ' <br><span class="small ' + cls + '">' + (r.active ? when : "paused") + "</span></td>" +
-        '<td class="amount-cell ' + (r.type === "income" ? "pos" : "neg") + '">' + (r.type === "income" ? "+" : "−") + S.fmtMoney(r.amount) + "</td>" +
+        '<td class="amount-cell ' + (r.type === "income" ? "pos" : "neg") + '">' + (r.type === "income" ? "+" : "−") + S.fmtMoney(r.amount, { currency: S.accountCurrency(r.accountId) }) + "</td>" +
         '<td class="nowrap">' +
+        '<button class="icon-btn" data-act="auto" title="' + (r.autoPost ? "Auto-posting on — click to turn off" : "Turn on auto-posting") + '" style="' + (r.autoPost ? "color:var(--primary)" : "") + '">⚡</button>' +
         '<button class="icon-btn" data-act="post" title="Log now &amp; advance date">✅</button>' +
         '<button class="icon-btn" data-act="toggle" title="Pause/Resume">' + (r.active ? "⏸️" : "▶️") + "</button>" +
         '<button class="icon-btn" data-act="edit">✏️</button>' +
@@ -266,7 +268,7 @@
       : '<div class="empty"><div class="big">🔁</div>No recurring items yet.</div>';
 
     return '<div class="toolbar" style="justify-content:space-between">' +
-      '<span class="muted small">Use ✅ to log a payment and roll the due date forward.</span>' +
+      '<span class="muted small">Use ✅ to log a payment now, or ⚡ to auto-post it on the due date.</span>' +
       '<button class="primary-btn" id="rec-add">+ Add Recurring</button></div>' +
       '<div class="card">' + table + "</div>";
   };
@@ -583,6 +585,7 @@
       '<div class="form-grid-2"><div class="form-row"><label>Next due date</label><input id="r-date" type="date" value="' + r.nextDate + '" /></div>' +
       '<div class="form-row"><label>Account</label>' + accountSelect("r-account", r.accountId) + "</div></div>" +
       '<div class="form-row"><label>Category</label><span id="r-cat-wrap">' + categorySelect("r-cat", r.categoryId, r.type) + "</span></div>" +
+      '<label class="check-row"><input type="checkbox" id="r-auto"' + (r.autoPost ? " checked" : "") + ' /> <span>Auto-post on the due date <span class="muted small">— the app logs it for you (and catches up any missed periods on launch)</span></span></label>' +
       modalActions()
     );
     var type = r.type;
@@ -601,11 +604,18 @@
         nextDate: $("#r-date").value || S.todayISO(),
         accountId: $("#r-account").value,
         categoryId: $("#r-cat").value,
-        active: existing ? existing.active : true
+        active: existing ? existing.active : true,
+        autoPost: $("#r-auto").checked
       };
       if (existing) { var i = st.recurring.findIndex(function (x) { return x.id === existing.id; }); st.recurring[i] = rec; }
       else st.recurring.push(rec);
-      S.save(); closeModal(); toast("Recurring item saved.", "success"); render();
+      S.save();
+      // If auto-post is on and it's already due, catch up immediately.
+      var posted = rec.autoPost ? S.catchUpRecurring(rec, S.todayISO()) : 0;
+      if (posted) S.save();
+      closeModal();
+      toast(posted ? "Saved — auto-posted " + posted + " due payment(s)." : "Recurring item saved.", "success");
+      buildMonthPicker(); render();
     };
   }
 
@@ -823,10 +833,17 @@
       var r = st.recurring.find(function (x) { return x.id === id; });
       if (act === "edit") recurringModal(r);
       else if (act === "toggle") { r.active = !r.active; S.save(); toast(r.active ? "Resumed." : "Paused.", "success"); render(); }
+      else if (act === "auto") {
+        r.autoPost = !r.autoPost; S.save();
+        var caught = r.autoPost ? S.catchUpRecurring(r, S.todayISO()) : 0;
+        if (caught) S.save();
+        toast(r.autoPost ? ("Auto-posting on" + (caught ? " — posted " + caught + " due payment(s)." : ".")) : "Auto-posting off.", "success");
+        buildMonthPicker(); render();
+      }
       else if (act === "post") {
         st.transactions.push({ id: S.uid(), type: r.type, amount: r.amount, date: r.nextDate, categoryId: r.categoryId, accountId: r.accountId, note: r.name + " (recurring)" });
         r.nextDate = S.addToDate(r.nextDate, r.frequency);
-        S.save(); toast("Logged " + S.fmtMoney(r.amount) + " · next due " + r.nextDate, "success"); buildMonthPicker(); render();
+        S.save(); toast("Logged " + S.fmtMoney(r.amount, { currency: S.accountCurrency(r.accountId) }) + " · next due " + r.nextDate, "success"); buildMonthPicker(); render();
       } else if (act === "del") {
         confirmModal("Delete this recurring item?", function () {
           st.recurring = st.recurring.filter(function (x) { return x.id !== id; }); S.save(); toast("Deleted.", "success"); render();
@@ -1024,7 +1041,7 @@
       name = (name || "").trim();
       if (!name) return defaultAcct ? defaultAcct.id : null;
       if (acctMap[name.toLowerCase()]) return acctMap[name.toLowerCase()].id;
-      var rec = { id: S.uid(), name: name, type: "Bank", openingBalance: 0 };
+      var rec = { id: S.uid(), name: name, type: "Bank", openingBalance: 0, currency: S.baseCurrency() };
       acctMap[name.toLowerCase()] = rec; addAccts.push(rec); newAccts.push(name);
       if (!defaultAcct) defaultAcct = rec;
       return rec.id;
@@ -1109,6 +1126,9 @@
     applyTheme(S.getState().settings.theme || "light");
     installDelegation();
 
+    // Auto-post any recurring items that have come due since the last visit.
+    var autoSummary = S.runAutoPosts();
+
     $all(".nav-item").forEach(function (n) {
       n.onclick = function () { ui.view = n.getAttribute("data-view"); window.scrollTo(0, 0); render(); };
     });
@@ -1120,6 +1140,10 @@
     };
 
     render();
+
+    if (autoSummary.count) {
+      toast("⚡ Auto-posted " + autoSummary.count + " recurring transaction(s): " + autoSummary.names.join(", "), "success");
+    }
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
