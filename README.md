@@ -34,6 +34,22 @@ on your device.
   light/dark theme, export/import a JSON backup, **import/export transactions as
   CSV**, load demo data, or wipe everything.
 
+## Notifications center
+
+A **🔔 bell** in the top bar shows a live badge counting bills that are **overdue**
+or **due soon**. Click it to open a panel that lists each one with its amount,
+account, and due/overdue status. From there you can:
+
+- **✅ Log now** — post the payment immediately and roll the due date forward.
+- **✕ Dismiss** — hide that specific occurrence; it reappears automatically at
+  the next due date.
+- **Dismiss all** or jump straight to **Manage recurring**.
+
+The badge is red when something is overdue, amber when everything is merely
+upcoming. The look-ahead window (default 7 days) is configurable under
+**Settings → Notify about bills due within (days)**. Auto-posting items appear
+here too, flagged ⚡, as a heads-up before they post.
+
 ## Auto-posting recurring bills
 
 Each recurring item has an **⚡ auto-post** switch (toggle it from the Recurring &

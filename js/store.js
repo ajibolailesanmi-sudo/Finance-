@@ -32,7 +32,7 @@
     return {
       // baseCurrency drives all reporting/aggregation; rates = value of 1 unit of
       // a currency expressed in the base currency (base itself is implicitly 1).
-      settings: { baseCurrency: "USD", rates: {}, theme: "light" },
+      settings: { baseCurrency: "USD", rates: {}, theme: "light", alertLeadDays: 7, dismissedAlerts: {} },
       accounts: [
         { id: uid(), name: "Checking", type: "Bank", openingBalance: 0, currency: "USD" },
         { id: uid(), name: "Cash", type: "Cash", openingBalance: 0, currency: "USD" }
@@ -73,6 +73,8 @@
     if (!s.baseCurrency) s.baseCurrency = s.currency || "USD";
     delete s.currency;
     if (!s.rates || typeof s.rates !== "object") s.rates = {};
+    if (typeof s.alertLeadDays !== "number") s.alertLeadDays = 7;
+    if (!s.dismissedAlerts || typeof s.dismissedAlerts !== "object") s.dismissedAlerts = {};
     if (!Array.isArray(state.goals)) state.goals = [];
     state.accounts.forEach(function (a) { if (!a.currency) a.currency = s.baseCurrency; });
   }
@@ -306,6 +308,53 @@
     return summary;
   }
 
+  /* ---------- Alerts / notifications (upcoming & overdue bills) ---------- */
+  function alertLeadDays() {
+    var d = state.settings && state.settings.alertLeadDays;
+    return (typeof d === "number" && d >= 0) ? d : 7;
+  }
+
+  // An alert is keyed by recurring id + its current due date, so dismissing it
+  // hides only that occurrence; when the bill rolls forward the key changes and
+  // it surfaces again.
+  function computeAlerts() {
+    var lead = alertLeadDays();
+    var dismissed = (state.settings && state.settings.dismissedAlerts) || {};
+    var out = [];
+    state.recurring.forEach(function (r) {
+      if (!r.active) return;
+      var days = daysUntil(r.nextDate);
+      if (days > lead) return;   // outside the look-ahead window
+      var key = r.id + "::" + r.nextDate;
+      out.push({
+        id: r.id, key: key, name: r.name, accountId: r.accountId, categoryId: r.categoryId,
+        amount: r.amount, type: r.type, dueDate: r.nextDate, days: days,
+        status: days < 0 ? "overdue" : "soon", autoPost: !!r.autoPost,
+        dismissed: !!dismissed[key]
+      });
+    });
+    out.sort(function (a, b) { return a.days - b.days; });
+    return out;
+  }
+
+  function activeAlerts() { return computeAlerts().filter(function (a) { return !a.dismissed; }); }
+
+  function dismissAlert(key) {
+    var d = state.settings.dismissedAlerts || (state.settings.dismissedAlerts = {});
+    d[key] = true; save();
+  }
+  function dismissAllAlerts() {
+    var d = state.settings.dismissedAlerts || (state.settings.dismissedAlerts = {});
+    activeAlerts().forEach(function (a) { d[a.key] = true; });
+    save();
+  }
+  function clearDismissedAlerts() {
+    var dismissed = state.settings.dismissedAlerts || {};
+    // Re-surface any currently-dismissed alerts in the look-ahead window.
+    computeAlerts().forEach(function (a) { delete dismissed[a.key]; });
+    state.settings.dismissedAlerts = dismissed; save();
+  }
+
   /* ---------- CSV helpers (import / export) ---------- */
   // RFC-4180-ish parser: handles quoted fields, escaped quotes, CRLF. Returns rows of cells.
   function parseCSVRows(text) {
@@ -457,6 +506,12 @@
     daysUntil: daysUntil,
     runAutoPosts: runAutoPosts,
     catchUpRecurring: catchUpRecurring,
+    alertLeadDays: alertLeadDays,
+    computeAlerts: computeAlerts,
+    activeAlerts: activeAlerts,
+    dismissAlert: dismissAlert,
+    dismissAllAlerts: dismissAllAlerts,
+    clearDismissedAlerts: clearDismissedAlerts,
     csvToObjects: csvToObjects,
     toCSV: toCSV,
     parseDateLoose: parseDateLoose,

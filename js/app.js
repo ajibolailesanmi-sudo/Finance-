@@ -462,6 +462,7 @@
     return '<div class="grid cols-2">' +
       '<div class="card"><div class="card-title">Preferences</div>' +
       '<div class="form-row"><label>Base currency (for reports &amp; net worth)</label><select id="set-currency">' + curOpts + "</select></div>" +
+      '<div class="form-row"><label>Notify about bills due within (days)</label><input id="set-leaddays" type="number" min="0" max="90" value="' + S.alertLeadDays() + '" /></div>' +
       '<div class="form-row"><label>Theme</label><div class="seg"><button id="theme-light" class="' + (st.settings.theme !== "dark" ? "active" : "") + '">☀️ Light</button><button id="theme-dark" class="' + (st.settings.theme === "dark" ? "active" : "") + '">🌙 Dark</button></div></div>' +
       "</div>" +
       '<div class="card"><div class="card-title">Exchange Rates</div>' +
@@ -794,6 +795,89 @@
     });
     // Single row-action handler, dispatched by the active view.
     $("#view-root").addEventListener("click", handleRootClick);
+
+    // Notifications bell + panel.
+    $("#alerts-btn").addEventListener("click", function (e) { e.stopPropagation(); toggleAlertsPanel(); });
+    $("#alerts-panel").addEventListener("click", handleAlertClick);
+    document.addEventListener("click", function (e) {
+      if ($("#alerts-panel").classList.contains("hidden")) return;
+      if (!e.target.closest(".alerts-wrap")) toggleAlertsPanel(false);
+    });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape") toggleAlertsPanel(false); });
+  }
+
+  /* ---------- Notifications center ---------- */
+  function updateAlertsBadge() {
+    var alerts = S.activeAlerts();
+    var badge = $("#alerts-badge");
+    if (!alerts.length) { badge.classList.add("hidden"); return; }
+    badge.classList.remove("hidden");
+    badge.textContent = alerts.length > 99 ? "99+" : String(alerts.length);
+    // Red if anything is overdue, amber if only upcoming.
+    badge.classList.toggle("amber", !alerts.some(function (a) { return a.status === "overdue"; }));
+  }
+
+  function renderAlertsPanel() {
+    var panel = $("#alerts-panel");
+    var alerts = S.activeAlerts();
+    var head = '<div class="alerts-head"><strong>Notifications</strong>' +
+      (alerts.length ? '<button class="link-btn" id="alerts-dismiss-all">Dismiss all</button>' : "") + "</div>";
+    if (!alerts.length) {
+      panel.innerHTML = head + '<div class="alerts-empty"><div class="big">🎉</div>You\'re all caught up.' +
+        '<div class="small muted" style="margin-top:6px">No bills due in the next ' + S.alertLeadDays() + " days.</div></div>";
+      return;
+    }
+    var overdue = alerts.filter(function (a) { return a.status === "overdue"; }).length;
+    var rows = alerts.map(function (a) {
+      var acct = S.accountById(a.accountId);
+      var cur = S.accountCurrency(a.accountId);
+      var when = a.days < 0 ? Math.abs(a.days) + "d overdue" : (a.days === 0 ? "Due today" : "Due in " + a.days + "d");
+      var whenCls = a.status === "overdue" ? "overdue" : "due-soon";
+      var icon = a.status === "overdue" ? "⚠️" : "🗓️";
+      return '<div class="alert-item" data-key="' + escAttr(a.key) + '" data-id="' + a.id + '">' +
+        '<div class="alert-icon ' + a.status + '">' + icon + "</div>" +
+        '<div class="a-main"><div class="a-name">' + escHtml(a.name) + (a.autoPost ? ' <span class="muted small">⚡ auto</span>' : "") + "</div>" +
+        '<div class="a-sub"><span class="' + whenCls + '">' + when + "</span> · " + S.fmtMoney(a.amount, { currency: cur }) +
+        " · " + (acct ? escHtml(acct.name) : "—") + "</div></div>" +
+        '<div class="a-actions">' +
+        '<button class="icon-btn" data-aact="log" title="Log this payment now & roll the date forward">✅</button>' +
+        '<button class="icon-btn" data-aact="dismiss" title="Dismiss until next due">✕</button></div></div>';
+    }).join("");
+    var foot = '<div style="padding:8px 12px;display:flex;justify-content:space-between;align-items:center">' +
+      '<span class="muted small">' + (overdue ? overdue + " overdue · " : "") + (alerts.length - overdue) + " upcoming</span>" +
+      '<button class="link-btn" id="alerts-goto">Manage recurring →</button></div>';
+    panel.innerHTML = head + rows + foot;
+  }
+
+  function toggleAlertsPanel(force) {
+    var panel = $("#alerts-panel"), btn = $("#alerts-btn");
+    var show = (force === undefined) ? panel.classList.contains("hidden") : force;
+    if (show) { renderAlertsPanel(); panel.classList.remove("hidden"); btn.setAttribute("aria-expanded", "true"); }
+    else { panel.classList.add("hidden"); btn.setAttribute("aria-expanded", "false"); }
+  }
+
+  function handleAlertClick(e) {
+    // Keep clicks inside the panel from reaching the outside-click closer — re-rendering
+    // the panel detaches the clicked node, which would otherwise be read as "outside".
+    e.stopPropagation();
+    if (e.target.id === "alerts-dismiss-all") { S.dismissAllAlerts(); renderAlertsPanel(); updateAlertsBadge(); return; }
+    if (e.target.id === "alerts-goto") { toggleAlertsPanel(false); ui.view = "recurring"; window.scrollTo(0, 0); render(); return; }
+    var item = e.target.closest(".alert-item"); if (!item) return;
+    var btn = e.target.closest("[data-aact]"); if (!btn) return;
+    var key = item.getAttribute("data-key"), id = item.getAttribute("data-id");
+    var aact = btn.getAttribute("data-aact");
+    var st = S.getState();
+    if (aact === "dismiss") {
+      S.dismissAlert(key); renderAlertsPanel(); updateAlertsBadge();
+    } else if (aact === "log") {
+      var r = st.recurring.find(function (x) { return x.id === id; });
+      if (!r) return;
+      st.transactions.push({ id: S.uid(), type: r.type, amount: r.amount, date: r.nextDate, categoryId: r.categoryId, accountId: r.accountId, note: r.name + " (recurring)" });
+      r.nextDate = S.addToDate(r.nextDate, r.frequency);
+      S.save();
+      toast("Logged " + S.fmtMoney(r.amount, { currency: S.accountCurrency(r.accountId) }) + " · next due " + r.nextDate, "success");
+      buildMonthPicker(); render(); renderAlertsPanel();
+    }
   }
 
   function handleRootClick(e) {
@@ -919,6 +1003,11 @@
   function wireSettings() {
     var st = S.getState();
     $("#set-currency").onchange = function (e) { st.settings.baseCurrency = e.target.value; S.save(); toast("Base currency updated.", "success"); render(); };
+    $("#set-leaddays").onchange = function (e) {
+      var v = parseInt(e.target.value, 10);
+      st.settings.alertLeadDays = (isNaN(v) || v < 0) ? 0 : Math.min(90, v);
+      S.save(); toast("Alert window set to " + st.settings.alertLeadDays + " days.", "success"); render();
+    };
     $all(".rate-input").forEach(function (inp) {
       inp.onchange = function () {
         var cur = inp.getAttribute("data-cur");
@@ -1116,6 +1205,7 @@
     buildMonthPicker();
     $("#view-root").innerHTML = Views[ui.view]();
     wireView();
+    updateAlertsBadge();
   }
 
   /* ============================================================

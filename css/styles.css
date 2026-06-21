@@ -86,6 +86,41 @@ body {
 }
 .topbar h1 { font-size: 22px; font-weight: 700; }
 .topbar-actions { display: flex; gap: 10px; align-items: center; }
+
+/* ===== Alerts / notifications ===== */
+.alerts-wrap { position: relative; }
+.alerts-btn {
+  position: relative; background: var(--surface); border: 1px solid var(--border);
+  width: 40px; height: 40px; border-radius: var(--radius-sm); cursor: pointer; font-size: 17px;
+  display: grid; place-items: center; transition: background .15s;
+}
+.alerts-btn:hover { background: var(--surface-2); }
+.alerts-btn .badge {
+  position: absolute; top: -6px; right: -6px; min-width: 18px; height: 18px; padding: 0 5px;
+  border-radius: 999px; background: var(--expense); color: #fff; font-size: 11px; font-weight: 700;
+  display: grid; place-items: center; box-shadow: 0 0 0 2px var(--bg);
+}
+.alerts-btn .badge.amber { background: var(--warn); }
+.alerts-btn .badge.hidden { display: none; }
+.alerts-panel {
+  position: absolute; right: 0; top: 48px; width: 360px; max-width: 86vw; max-height: 70vh; overflow: auto;
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  box-shadow: var(--shadow); z-index: 40; padding: 6px;
+}
+.alerts-panel.hidden { display: none; }
+.alerts-head { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px 8px; }
+.alerts-head strong { font-size: 14px; }
+.alert-item { display: flex; gap: 10px; padding: 11px 12px; border-radius: var(--radius-sm); align-items: flex-start; }
+.alert-item:hover { background: var(--surface-2); }
+.alert-item .a-main { flex: 1; min-width: 0; }
+.alert-item .a-name { font-weight: 600; font-size: 14px; }
+.alert-item .a-sub { font-size: 12px; color: var(--text-soft); margin-top: 2px; }
+.alert-item .a-actions { display: flex; gap: 2px; align-items: center; }
+.alert-icon { width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; font-size: 14px; flex-shrink: 0; }
+.alert-icon.overdue { background: rgba(226,87,76,.14); }
+.alert-icon.soon { background: rgba(230,162,60,.16); }
+.alerts-empty { text-align: center; color: var(--muted); padding: 28px 16px; }
+.alerts-empty .big { font-size: 30px; margin-bottom: 8px; }
 .view-root { padding: 0 28px 48px; }
 
 /* ===== Buttons & inputs ===== */

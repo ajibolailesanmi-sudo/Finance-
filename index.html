@@ -35,6 +35,12 @@
       <header class="topbar">
         <h1 id="view-title">Dashboard</h1>
         <div class="topbar-actions">
+          <div class="alerts-wrap">
+            <button id="alerts-btn" class="alerts-btn" title="Alerts" aria-haspopup="true" aria-expanded="false">
+              🔔<span id="alerts-badge" class="badge hidden">0</span>
+            </button>
+            <div id="alerts-panel" class="alerts-panel hidden" role="dialog" aria-label="Notifications"></div>
+          </div>
           <select id="month-picker" class="month-picker" title="Reporting month"></select>
           <button id="quick-add" class="primary-btn">+ Add Transaction</button>
         </div>
