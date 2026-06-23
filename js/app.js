@@ -58,10 +58,14 @@
     var st = S.getState();
     var totals = S.monthTotals(ui.month);
     var nw = S.totalNetWorth();
+    var liab = S.liabilitiesTotal();
     var savingsRate = totals.income > 0 ? (totals.net / totals.income) * 100 : 0;
+    var nwSub = liab < 0
+      ? "Assets " + S.fmtMoney(S.assetsTotal(), { compact: true }) + " · Debts " + S.fmtMoney(Math.abs(liab), { compact: true })
+      : "Across all accounts";
 
     var stats = '<div class="grid stat-grid">' +
-      statCard("Net Worth", S.fmtMoney(nw), null, "Across all accounts") +
+      statCard("Net Worth", S.fmtMoney(nw), nw >= 0 ? null : "neg", nwSub) +
       statCard("Income", S.fmtMoney(totals.income), "pos", S.monthLabel(ui.month)) +
       statCard("Expenses", S.fmtMoney(totals.expense), "neg", S.monthLabel(ui.month)) +
       statCard("Net Savings", S.fmtMoney(totals.net), totals.net >= 0 ? "pos" : "neg", savingsRate.toFixed(0) + "% of income") +
@@ -154,7 +158,7 @@
     function typeOpt(v, label) { return '<option value="' + v + '"' + (ui.txFilter.type === v ? " selected" : "") + ">" + label + "</option>"; }
     var toolbar = '<div class="toolbar">' +
       '<input class="search" id="tx-search" placeholder="Search notes…" value="' + escAttr(ui.txFilter.search) + '" />' +
-      '<select id="tx-type"><option value="all">All types</option>' + typeOpt("income", "Income") + typeOpt("expense", "Expense") + typeOpt("transfer", "Transfer") + "</select>" +
+      '<select id="tx-type"><option value="all">All types</option>' + typeOpt("income", "Income") + typeOpt("expense", "Expense") + typeOpt("transfer", "Transfer") + typeOpt("adjust", "Adjustment") + "</select>" +
       '<select id="tx-cat">' + catOptions + "</select>" +
       '<button class="ghost-btn" id="tx-transfer" style="width:auto">⇄ Transfer</button>' +
       '<button class="primary-btn" id="tx-add">+ Add</button></div>';
@@ -170,6 +174,18 @@
           "<td>" + (from ? escHtml(from.name) : "—") + ' <span class="muted">→</span> ' + (to ? escHtml(to.name) : "—") + "</td>" +
           '<td class="amount-cell muted">' + S.fmtMoney(t.amount, { currency: S.accountCurrency(t.accountId) }) + "</td>" +
           '<td class="nowrap"><button class="icon-btn" data-act="edit">✏️</button><button class="icon-btn" data-act="del">🗑️</button></td>' +
+          "</tr>";
+      }
+      if (t.type === "adjust") {
+        var aa = S.accountById(t.accountId);
+        var up = t.amount >= 0;
+        return '<tr data-id="' + t.id + '">' +
+          "<td>" + t.date + "</td>" +
+          '<td><span class="dot" style="background:var(--accent-4)"></span><span class="muted">📈 Adjustment</span></td>' +
+          "<td>" + (t.note ? escHtml(t.note) : '<span class="muted">—</span>') + "</td>" +
+          "<td>" + (aa ? escHtml(aa.name) : "—") + "</td>" +
+          '<td class="amount-cell ' + (up ? "pos" : "neg") + '">' + (up ? "+" : "−") + S.fmtMoney(Math.abs(t.amount), { currency: S.accountCurrency(t.accountId) }) + "</td>" +
+          '<td class="nowrap"><button class="icon-btn" data-act="del">🗑️</button></td>' +
           "</tr>";
       }
       var c = S.categoryById(t.categoryId);
@@ -277,7 +293,8 @@
   Views.accounts = function () {
     var st = S.getState();
     var base = S.baseCurrency();
-    var rows = st.accounts.map(function (a) {
+
+    function acctRow(a) {
       var bal = S.accountBalance(a.id);
       var cur = a.currency || base;
       var count = st.transactions.filter(function (t) { return t.accountId === a.id || t.toAccountId === a.id; }).length;
@@ -287,14 +304,37 @@
         '<td><span class="pill">' + escHtml(a.type) + '</span> <span class="pill">' + cur + "</span></td>" +
         "<td>" + count + " transactions</td>" +
         '<td class="amount-cell ' + (bal >= 0 ? "pos" : "neg") + '">' + S.fmtMoney(bal, { currency: cur }) + baseEq + "</td>" +
-        '<td class="nowrap"><button class="icon-btn" data-act="edit">✏️</button><button class="icon-btn" data-act="del">🗑️</button></td>' +
+        '<td class="nowrap">' +
+        '<button class="icon-btn" data-act="adjust-value" title="Update current value / balance">📈</button>' +
+        '<button class="icon-btn" data-act="edit" title="Edit">✏️</button>' +
+        '<button class="icon-btn" data-act="del" title="Delete">🗑️</button></td>' +
         "</tr>";
-    }).join("");
+    }
 
-    var nw = '<div class="small muted" style="margin-bottom:10px">Total net worth: <strong>' + S.fmtMoney(S.totalNetWorth()) + " " + base + "</strong> (base currency)</div>";
-    return '<div class="toolbar" style="justify-content:flex-end"><button class="primary-btn" id="acct-add">+ Add Account</button></div>' +
-      '<div class="card">' + nw + '<table class="table"><thead><tr><th>Account</th><th>Type</th><th>Activity</th><th style="text-align:right">Balance</th><th></th></tr></thead><tbody>' +
-      rows + "</tbody></table></div>";
+    function section(title, list, total, totalCls) {
+      if (!list.length) return "";
+      return '<div class="card section-gap"><div class="row-between" style="margin-bottom:8px">' +
+        '<div class="card-title" style="margin:0">' + title + "</div>" +
+        '<strong class="' + totalCls + '">' + S.fmtMoney(total) + " " + base + "</strong></div>" +
+        '<table class="table"><thead><tr><th>Account</th><th>Type</th><th>Activity</th><th style="text-align:right">Balance</th><th></th></tr></thead><tbody>' +
+        list.map(acctRow).join("") + "</tbody></table></div>";
+    }
+
+    var assets = st.accounts.filter(function (a) { return !S.isLiability(a); });
+    var liabs = st.accounts.filter(function (a) { return S.isLiability(a); });
+    var aTotal = S.assetsTotal(), lTotal = S.liabilitiesTotal(), nw = S.totalNetWorth();
+
+    var summary = '<div class="grid stat-grid">' +
+      statCard("Net Worth", S.fmtMoney(nw), nw >= 0 ? "pos" : "neg", "Assets − Liabilities, in " + base) +
+      statCard("Assets", S.fmtMoney(aTotal), "pos", assets.length + " account(s)") +
+      statCard("Liabilities", S.fmtMoney(Math.abs(lTotal)), "neg", liabs.length + " account(s)") +
+      "</div>";
+
+    return summary +
+      '<div class="toolbar" style="justify-content:flex-end"><button class="primary-btn" id="acct-add">+ Add Account</button></div>' +
+      section("Assets", assets, aTotal, "pos") +
+      section("Liabilities", liabs, Math.abs(lTotal), "neg") +
+      (st.accounts.length ? "" : '<div class="empty"><div class="big">🏦</div>No accounts yet.</div>');
   };
 
   // ---------- Categories ----------
@@ -398,7 +438,8 @@
       statCard("Income", S.fmtMoney(totals.income), "pos", range.label) +
       statCard("Expenses", S.fmtMoney(totals.expense), "neg", range.label) +
       statCard("Net", S.fmtMoney(totals.net), totals.net >= 0 ? "pos" : "neg", savingsRate.toFixed(0) + "% savings rate") +
-      statCard("Net Worth", S.fmtMoney(S.totalNetWorth()), null, "Current, all accounts") +
+      statCard("Net Worth", S.fmtMoney(S.totalNetWorth()), S.totalNetWorth() >= 0 ? null : "neg",
+        "Assets " + S.fmtMoney(S.assetsTotal(), { compact: true }) + " − Debts " + S.fmtMoney(Math.abs(S.liabilitiesTotal()), { compact: true })) +
       "</div>";
 
     function breakdown(title, map, total) {
@@ -417,16 +458,26 @@
       breakdown("Expenses by Category", S.spendByCategoryFor(txs), totals.expense) +
       breakdown("Income by Category", S.incomeByCategoryFor(txs), totals.income) + "</div>";
 
-    // Account balances
-    var acctRows = st.accounts.map(function (a) {
-      var cur = a.currency || base, bal = S.accountBalance(a.id);
-      return "<tr><td>" + escHtml(a.name) + ' <span class="pill">' + cur + "</span></td>" +
-        '<td class="amount-cell">' + S.fmtMoney(bal, { currency: cur }) + "</td>" +
-        '<td class="amount-cell muted">' + S.fmtMoney(S.convert(bal, cur, base)) + " " + base + "</td></tr>";
-    }).join("");
-    var accountsCard = '<div class="card"><div class="card-title">Account Balances</div><table class="table">' +
+    // Account balances, grouped by assets / liabilities with subtotals.
+    function acctRowsFor(list) {
+      return list.map(function (a) {
+        var cur = a.currency || base, bal = S.accountBalance(a.id);
+        return "<tr><td>" + escHtml(a.name) + ' <span class="pill">' + escHtml(a.type) + "</span></td>" +
+          '<td class="amount-cell">' + S.fmtMoney(bal, { currency: cur }) + "</td>" +
+          '<td class="amount-cell muted">' + S.fmtMoney(S.convert(bal, cur, base)) + " " + base + "</td></tr>";
+      }).join("");
+    }
+    function subtotal(label, val, cls) {
+      return '<tr><td><strong>' + label + '</strong></td><td></td><td class="amount-cell ' + cls + '"><strong>' + S.fmtMoney(val) + " " + base + "</strong></td></tr>";
+    }
+    var assetList = st.accounts.filter(function (a) { return !S.isLiability(a); });
+    var liabList = st.accounts.filter(function (a) { return S.isLiability(a); });
+    var accountsCard = '<div class="card"><div class="card-title">Net Worth — Accounts</div><table class="table">' +
       '<thead><tr><th>Account</th><th style="text-align:right">Balance</th><th style="text-align:right">In ' + base + "</th></tr></thead><tbody>" +
-      acctRows + "</tbody></table></div>";
+      acctRowsFor(assetList) + subtotal("Total assets", S.assetsTotal(), "pos") +
+      (liabList.length ? acctRowsFor(liabList) + subtotal("Total liabilities", S.liabilitiesTotal(), "neg") : "") +
+      subtotal("Net worth", S.totalNetWorth(), S.totalNetWorth() >= 0 ? "pos" : "neg") +
+      "</tbody></table></div>";
 
     // Goals snapshot
     var goalsCard = "";
@@ -647,28 +698,44 @@
   }
 
   var CURRENCIES = ["USD", "EUR", "GBP", "NGN", "JPY", "CAD", "AUD", "INR", "ZAR", "BRL", "CNY", "CHF", "MXN", "KES"];
+  var ACCOUNT_TYPES = ["Bank", "Cash", "Savings", "Investment", "Credit Card", "Loan", "Mortgage", "Other"];
   function accountModal(existing) {
     var st = S.getState();
     var base = S.baseCurrency();
-    var a = existing || { name: "", type: "Bank", openingBalance: 0, currency: base };
-    var types = ["Bank", "Cash", "Credit Card", "Savings", "Investment", "Other"];
-    var typeOpts = types.map(function (t) { return '<option' + (a.type === t ? " selected" : "") + ">" + t + "</option>"; }).join("");
+    var a = existing || { name: "", type: "Bank", openingBalance: 0, currency: base, liability: false };
+    var isLiab = existing ? S.isLiability(a) : false;
+    var typeOpts = ACCOUNT_TYPES.map(function (t) { return '<option' + (a.type === t ? " selected" : "") + ">" + t + "</option>"; }).join("");
     var curList = CURRENCIES.slice();
     if (curList.indexOf(base) === -1) curList.unshift(base);
     var curOpts = curList.map(function (c) { return '<option value="' + c + '"' + ((a.currency || base) === c ? " selected" : "") + ">" + c + (c === base ? " (base)" : "") + "</option>"; }).join("");
+    // Liabilities store a negative balance; show the magnitude ("amount owed") in the field.
+    var balValue = isLiab ? Math.abs(Number(a.openingBalance) || 0) : (a.openingBalance || 0);
     openModal(
       "<h2>" + (existing ? "Edit" : "Add") + " Account</h2>" +
-      '<div class="form-row"><label>Name</label><input id="a-name" value="' + escAttr(a.name) + '" placeholder="e.g. Main Checking" /></div>' +
+      '<div class="form-row"><label>Name</label><input id="a-name" value="' + escAttr(a.name) + '" placeholder="e.g. Main Checking, Visa, Car Loan" /></div>' +
       '<div class="form-grid-2"><div class="form-row"><label>Type</label><select id="a-type">' + typeOpts + "</select></div>" +
       '<div class="form-row"><label>Currency</label><select id="a-currency">' + curOpts + "</select></div></div>" +
-      '<div class="form-row"><label>Opening balance</label><input id="a-bal" type="number" step="0.01" value="' + (a.openingBalance || 0) + '" /></div>' +
+      '<label class="check-row"><input type="checkbox" id="a-liability"' + (isLiab ? " checked" : "") + ' /> <span>This is a <strong>liability</strong> (money you owe — credit card, loan, mortgage)</span></label>' +
+      '<div class="form-row" style="margin-top:14px"><label id="a-bal-label">' + (isLiab ? "Current amount owed" : "Opening / current balance") + '</label><input id="a-bal" type="number" step="0.01" value="' + balValue + '" /></div>' +
       modalActions()
     );
+    function syncLiabilityUI() {
+      var owed = $("#a-liability").checked;
+      $("#a-bal-label").textContent = owed ? "Current amount owed" : "Opening / current balance";
+    }
+    // Default the liability flag from the chosen type (until the user overrides it).
+    $("#a-type").onchange = function () {
+      if (!existing) { $("#a-liability").checked = S.isLiabilityType($("#a-type").value); syncLiabilityUI(); }
+    };
+    $("#a-liability").onchange = syncLiabilityUI;
     $("#modal-save").onclick = function () {
       var name = $("#a-name").value.trim();
       if (!name) return toast("Enter a name.", "error");
       var currency = $("#a-currency").value;
-      var rec = { id: existing ? existing.id : S.uid(), name: name, type: $("#a-type").value, openingBalance: parseFloat($("#a-bal").value) || 0, currency: currency };
+      var liability = $("#a-liability").checked;
+      var entered = parseFloat($("#a-bal").value) || 0;
+      var opening = liability ? -Math.abs(entered) : entered;   // liabilities stored negative
+      var rec = { id: existing ? existing.id : S.uid(), name: name, type: $("#a-type").value, openingBalance: opening, currency: currency, liability: liability };
       if (existing) { var i = st.accounts.findIndex(function (x) { return x.id === existing.id; }); st.accounts[i] = rec; }
       else st.accounts.push(rec);
       // Register a placeholder rate so the user can set it in Settings.
@@ -678,6 +745,46 @@
       }
       S.save(); closeModal();
       toast(currency !== S.baseCurrency() ? "Account saved — set its exchange rate in Settings." : "Account saved.", "success");
+      buildMonthPicker(); render();
+    };
+  }
+
+  // Update an account's current value (mark-to-market for investments, or the
+  // outstanding balance on a loan). Records a non-cashflow "adjust" transaction
+  // for the difference so net worth stays accurate without affecting income/expense.
+  function adjustValueModal(acct) {
+    var cur = acct.currency || S.baseCurrency();
+    var current = S.accountBalance(acct.id);
+    var liab = S.isLiability(acct);
+    var shownCurrent = liab ? Math.abs(current) : current;
+    openModal(
+      "<h2>Update “" + escHtml(acct.name) + "”</h2>" +
+      '<p class="muted small" style="margin-bottom:14px">Current ' + (liab ? "amount owed" : "value") + ": <strong>" + S.fmtMoney(shownCurrent, { currency: cur }) + "</strong>. " +
+      "Enter the new figure — we'll record the difference as a balance adjustment (it won't count as income or spending).</p>" +
+      '<div class="form-row"><label>New ' + (liab ? "amount owed" : "current value") + " (" + cur + ')</label><input id="av-value" type="number" step="0.01" value="' + shownCurrent + '" /></div>' +
+      '<div class="form-row"><label>Date</label><input id="av-date" type="date" value="' + S.todayISO() + '" /></div>' +
+      '<div class="small muted" id="av-hint" style="margin-bottom:4px"></div>' +
+      modalActions()
+    );
+    function newTarget() { var v = parseFloat($("#av-value").value); if (isNaN(v)) return null; return liab ? -Math.abs(v) : v; }
+    function updateHint() {
+      var target = newTarget(); if (target == null) { $("#av-hint").textContent = ""; return; }
+      var delta = target - current;
+      $("#av-hint").textContent = (delta === 0 ? "No change." :
+        (delta > 0 ? "Increase of " : "Decrease of ") + S.fmtMoney(Math.abs(delta), { currency: cur }));
+    }
+    $("#av-value").oninput = updateHint; updateHint();
+    $("#modal-save").onclick = function () {
+      var target = newTarget();
+      if (target == null) return toast("Enter a valid number.", "error");
+      var delta = target - current;
+      if (delta === 0) { closeModal(); return; }
+      S.getState().transactions.push({
+        id: S.uid(), type: "adjust", amount: delta, accountId: acct.id,
+        date: $("#av-date").value || S.todayISO(), note: "Balance adjustment"
+      });
+      S.save(); closeModal();
+      toast("Updated " + acct.name + " to " + S.fmtMoney(liab ? Math.abs(target) : target, { currency: cur }) + ".", "success");
       buildMonthPicker(); render();
     };
   }
@@ -1045,6 +1152,7 @@
     } else if (ui.view === "accounts") {
       var a = st.accounts.find(function (x) { return x.id === id; });
       if (act === "edit") accountModal(a);
+      else if (act === "adjust-value") adjustValueModal(a);
       else confirmModal("Delete account \"" + escHtml(a.name) + "\"? Its transactions and transfers will also be removed.", function () {
         st.accounts = st.accounts.filter(function (x) { return x.id !== id; });
         st.transactions = st.transactions.filter(function (x) { return x.accountId !== id && x.toAccountId !== id; });
@@ -1179,6 +1287,9 @@
     if (t.type === "transfer") {
       var to = S.accountById(t.toAccountId);
       return { date: t.date, type: "transfer", amount: t.amount, category: "", account: (a ? a.name : "") + " > " + (to ? to.name : ""), note: t.note || "" };
+    }
+    if (t.type === "adjust") {
+      return { date: t.date, type: "adjust", amount: t.amount, category: "", account: a ? a.name : "", note: t.note || "" };
     }
     return { date: t.date, type: t.type, amount: t.amount, category: c ? c.name : "", account: a ? a.name : "", note: t.note || "" };
   }

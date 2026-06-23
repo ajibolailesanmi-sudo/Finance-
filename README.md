@@ -22,8 +22,13 @@ on your device.
   dates, and log a payment with one click to roll the date forward. Or flip on
   **⚡ auto-post** and the app logs each payment automatically when it falls due —
   catching up any periods you missed while the app was closed.
-- **🏦 Accounts** — multiple accounts (bank, cash, credit card, etc.), each in
-  **its own currency**, with live computed balances.
+- **🏦 Accounts** — track everything you own and owe. Accounts can be **assets**
+  (bank, cash, savings, investments) or **liabilities** (credit cards, loans,
+  mortgages), each in its own currency. The view groups them with asset and
+  liability subtotals and a real **net worth = assets − liabilities**. Use
+  **📈 Update value** on any account to mark an investment to its current market
+  value or set a loan's outstanding balance — recorded as a non-cashflow
+  adjustment so it moves net worth without distorting your income/expense reports.
 - **🏷️ Categories** — add, rename, recolor, and delete your own income/expense
   categories. Deleting a category that's in use safely reassigns its
   transactions to another category of the same type.
@@ -85,6 +90,21 @@ Bills table, or in the add/edit dialog). When it's on:
 - A summary toast tells you what was posted on launch.
 
 Items that are paused, or whose due date is still in the future, are left alone.
+
+## Net worth — assets & liabilities
+
+Add **everything**: bank/cash/savings, **investments**, and what you owe —
+**credit cards, car loans, mortgages**. When you add a liability account you
+enter the **amount owed** (stored internally as a negative balance), so:
+
+- **Net worth = total assets − total liabilities**, shown on the Dashboard, the
+  Accounts page (grouped with subtotals), and in Reports.
+- Spending on a credit card increases what you owe and lowers net worth; paying
+  the card from your checking account is a **transfer** that's net-worth-neutral.
+- **📈 Update value** revalues an investment or loan via a balance *adjustment* —
+  it counts toward net worth and the net-worth trend, but is excluded from
+  income, expenses, budgets, and savings rate (it isn't cashflow). Adjustments
+  appear in the ledger as `📈 Adjustment` rows.
 
 ## Multi-currency
 

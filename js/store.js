@@ -34,8 +34,8 @@
       // a currency expressed in the base currency (base itself is implicitly 1).
       settings: { baseCurrency: "USD", rates: {}, theme: "light", alertLeadDays: 7, dismissedAlerts: {}, notifyEnabled: false, notifiedAlerts: {} },
       accounts: [
-        { id: uid(), name: "Checking", type: "Bank", openingBalance: 0, currency: "USD" },
-        { id: uid(), name: "Cash", type: "Cash", openingBalance: 0, currency: "USD" }
+        { id: uid(), name: "Checking", type: "Bank", openingBalance: 0, currency: "USD", liability: false },
+        { id: uid(), name: "Cash", type: "Cash", openingBalance: 0, currency: "USD", liability: false }
       ],
       categories: DEFAULT_CATEGORIES.map(function (c) { return Object.assign({ id: uid() }, c); }),
       transactions: [],
@@ -78,7 +78,10 @@
     if (typeof s.notifyEnabled !== "boolean") s.notifyEnabled = false;
     if (!s.notifiedAlerts || typeof s.notifiedAlerts !== "object") s.notifiedAlerts = {};
     if (!Array.isArray(state.goals)) state.goals = [];
-    state.accounts.forEach(function (a) { if (!a.currency) a.currency = s.baseCurrency; });
+    state.accounts.forEach(function (a) {
+      if (!a.currency) a.currency = s.baseCurrency;
+      if (a.liability == null) a.liability = isLiabilityType(a.type);   // classify pre-existing accounts
+    });
   }
 
   function save() {
@@ -146,9 +149,16 @@
   function categoryById(id) { return state.categories.find(function (c) { return c.id === id; }); }
   function categoryByName(name) { return state.categories.find(function (c) { return c.name === name; }); }
 
+  // Account types that represent money owed (used as the default for the
+  // liability flag; the flag itself is the source of truth once set).
+  var LIABILITY_TYPES = { "Credit Card": true, "Loan": true, "Mortgage": true };
+  function isLiabilityType(type) { return !!LIABILITY_TYPES[type]; }
+  function isLiability(acct) { return acct ? (acct.liability != null ? !!acct.liability : isLiabilityType(acct.type)) : false; }
+
   /* ---------- Derived metrics ---------- */
 
   // Current balance of an account, expressed in that account's own currency.
+  // Liabilities carry a negative balance (you owe money).
   function accountBalance(accountId) {
     var acct = accountById(accountId);
     if (!acct) return 0;
@@ -162,6 +172,7 @@
         return;
       }
       if (t.accountId !== accountId) return;
+      if (t.type === "adjust") { bal += t.amount; return; }   // signed revaluation delta
       bal += t.type === "income" ? t.amount : -t.amount;
     });
     return bal;
@@ -172,6 +183,28 @@
     return state.accounts.reduce(function (sum, a) {
       return sum + convert(accountBalance(a.id), a.currency || baseCurrency(), baseCurrency());
     }, 0);
+  }
+
+  // Assets (non-liability accounts) and liabilities, in the base currency.
+  // liabilitiesTotal is negative (or zero); netWorth = assets + liabilities.
+  function assetsTotal() {
+    return state.accounts.reduce(function (s, a) {
+      return isLiability(a) ? s : s + convert(accountBalance(a.id), a.currency || baseCurrency(), baseCurrency());
+    }, 0);
+  }
+  function liabilitiesTotal() {
+    return state.accounts.reduce(function (s, a) {
+      return isLiability(a) ? s + convert(accountBalance(a.id), a.currency || baseCurrency(), baseCurrency()) : s;
+    }, 0);
+  }
+
+  // How a single transaction moves total net worth (base currency).
+  // income +, expense −, adjust = signed delta, transfer nets to zero.
+  function nwDeltaBase(t) {
+    if (t.type === "income") return txBaseAmount(t);
+    if (t.type === "expense") return -txBaseAmount(t);
+    if (t.type === "adjust") return convert(t.amount, accountCurrency(t.accountId), baseCurrency());
+    return 0;
   }
 
   function transactionsInMonth(key) {
@@ -231,21 +264,21 @@
   // Running net-worth value at the end of each of the last N months.
   function netWorthSeries(n, endKey) {
     var series = monthlySeries(n, endKey);
-    // Net worth at end of each month = opening balances + cumulative net up to that month (base currency).
+    // Net worth at end of each month = opening balances + cumulative net-worth
+    // delta up to that month (base currency; includes adjustments, excludes transfers).
     var openings = state.accounts.reduce(function (s, a) {
       return s + convert(Number(a.openingBalance) || 0, a.currency || baseCurrency(), baseCurrency());
     }, 0);
-    // Sum of all transactions strictly before the first month in the window.
     var firstKey = series.length ? series[0].key : endKey;
-    var priorNet = 0;
+    var priorDelta = 0;
     state.transactions.forEach(function (t) {
-      if (monthKey(t.date) >= firstKey) return;
-      if (t.type === "income") priorNet += txBaseAmount(t);
-      else if (t.type === "expense") priorNet -= txBaseAmount(t);   // transfers net to zero
+      if (monthKey(t.date) < firstKey) priorDelta += nwDeltaBase(t);
     });
-    var running = openings + priorNet;
+    var running = openings + priorDelta;
     return series.map(function (m) {
-      running += m.net;
+      var mDelta = 0;
+      transactionsInMonth(m.key).forEach(function (t) { mDelta += nwDeltaBase(t); });
+      running += mDelta;
       return { label: m.label, value: running };
     });
   }
@@ -472,9 +505,16 @@
       { id: uid(), name: "Streaming", type: "expense", accountId: checking, categoryId: cat("Subscriptions"), amount: 15.99, frequency: "monthly", nextDate: iso(-2), active: true, autoPost: true }
     ];
     // A second-currency account to showcase multi-currency reporting.
-    var euro = { id: uid(), name: "Euro Savings", type: "Savings", openingBalance: 2000, currency: "EUR" };
+    var euro = { id: uid(), name: "Euro Savings", type: "Savings", openingBalance: 2000, currency: "EUR", liability: false };
     s.accounts.push(euro);
     s.settings.rates = { EUR: 1.08 };   // 1 EUR ≈ 1.08 USD
+    // Assets and liabilities so net worth reflects the full picture.
+    var broker = { id: uid(), name: "Brokerage", type: "Investment", openingBalance: 12000, currency: "USD", liability: false };
+    s.accounts.push(broker);
+    s.accounts.push({ id: uid(), name: "Visa Card", type: "Credit Card", openingBalance: -1850, currency: "USD", liability: true });
+    s.accounts.push({ id: uid(), name: "Car Loan", type: "Loan", openingBalance: -9400, currency: "USD", liability: true });
+    // A market revaluation on the brokerage (counts toward net worth, not cashflow).
+    s.transactions.push({ id: uid(), type: "adjust", amount: 640, accountId: broker.id, note: "Market value update", date: iso(3) });
     function inDays(days) { var d = new Date(now); d.setDate(d.getDate() + days); return d.toISOString().slice(0, 10); }
     s.goals = [
       { id: uid(), name: "Emergency Fund", target: 10000, saved: 6500, targetDate: inDays(300), color: "#4f6ef7" },
@@ -507,6 +547,11 @@
     categoryByName: categoryByName,
     accountBalance: accountBalance,
     totalNetWorth: totalNetWorth,
+    assetsTotal: assetsTotal,
+    liabilitiesTotal: liabilitiesTotal,
+    nwDeltaBase: nwDeltaBase,
+    isLiability: isLiability,
+    isLiabilityType: isLiabilityType,
     transactionsInMonth: transactionsInMonth,
     transactionsInRange: transactionsInRange,
     monthTotals: monthTotals,
