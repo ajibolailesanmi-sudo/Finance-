@@ -50,6 +50,26 @@ upcoming. The look-ahead window (default 7 days) is configurable under
 **Settings → Notify about bills due within (days)**. Auto-posting items appear
 here too, flagged ⚡, as a heads-up before they post.
 
+### Desktop notifications
+
+Beyond the in-app bell, FinTrack can raise **native desktop notifications** for
+due/overdue bills. Turn them on under **Settings → Desktop Notifications**
+(you'll be asked for the browser's notification permission). After that:
+
+- On launch — and whenever you return to the tab — any newly-due bill triggers a
+  notification (one per occurrence; a single summary when several are due).
+- Clicking a notification focuses (or opens) FinTrack, via a small service
+  worker (`sw.js`).
+- A **Send a test notification** button lets you confirm it's working.
+
+**Scope/limitation:** because the app is fully client-side with **no server**,
+notifications fire while FinTrack is open or when you reopen the tab — not when
+the browser is completely closed. True background/closed-browser push requires a
+push server (VAPID + a backend), which this app intentionally doesn't have. The
+service worker needs the app to be served over `http(s)` (e.g.
+`python3 -m http.server`); over `file://` it gracefully falls back to in-page
+notifications.
+
 ## Auto-posting recurring bills
 
 Each recurring item has an **⚡ auto-post** switch (toggle it from the Recurring &
@@ -130,6 +150,7 @@ python3 -m http.server 8000
 ```
 index.html        markup + layout
 css/styles.css    theming (light/dark), components, responsive layout
+sw.js             service worker — desktop notification display + click-to-focus
 js/store.js       state, localStorage persistence, derived metrics, CSV helpers
 js/charts.js      dependency-free SVG charts (donut, bars, line)
 js/app.js         UI controller: routing, views, modals, forms

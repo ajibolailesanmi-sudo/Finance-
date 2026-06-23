@@ -32,7 +32,7 @@
     return {
       // baseCurrency drives all reporting/aggregation; rates = value of 1 unit of
       // a currency expressed in the base currency (base itself is implicitly 1).
-      settings: { baseCurrency: "USD", rates: {}, theme: "light", alertLeadDays: 7, dismissedAlerts: {} },
+      settings: { baseCurrency: "USD", rates: {}, theme: "light", alertLeadDays: 7, dismissedAlerts: {}, notifyEnabled: false, notifiedAlerts: {} },
       accounts: [
         { id: uid(), name: "Checking", type: "Bank", openingBalance: 0, currency: "USD" },
         { id: uid(), name: "Cash", type: "Cash", openingBalance: 0, currency: "USD" }
@@ -75,6 +75,8 @@
     if (!s.rates || typeof s.rates !== "object") s.rates = {};
     if (typeof s.alertLeadDays !== "number") s.alertLeadDays = 7;
     if (!s.dismissedAlerts || typeof s.dismissedAlerts !== "object") s.dismissedAlerts = {};
+    if (typeof s.notifyEnabled !== "boolean") s.notifyEnabled = false;
+    if (!s.notifiedAlerts || typeof s.notifiedAlerts !== "object") s.notifiedAlerts = {};
     if (!Array.isArray(state.goals)) state.goals = [];
     state.accounts.forEach(function (a) { if (!a.currency) a.currency = s.baseCurrency; });
   }
@@ -355,6 +357,18 @@
     state.settings.dismissedAlerts = dismissed; save();
   }
 
+  // Active alerts the user hasn't yet been notified about (one desktop
+  // notification per occurrence; the key changes when the bill rolls forward).
+  function pendingNotifications() {
+    var notified = (state.settings && state.settings.notifiedAlerts) || {};
+    return activeAlerts().filter(function (a) { return !notified[a.key]; });
+  }
+  function markNotified(keys) {
+    var n = state.settings.notifiedAlerts || (state.settings.notifiedAlerts = {});
+    keys.forEach(function (k) { n[k] = true; });
+    save();
+  }
+
   /* ---------- CSV helpers (import / export) ---------- */
   // RFC-4180-ish parser: handles quoted fields, escaped quotes, CRLF. Returns rows of cells.
   function parseCSVRows(text) {
@@ -512,6 +526,8 @@
     dismissAlert: dismissAlert,
     dismissAllAlerts: dismissAllAlerts,
     clearDismissedAlerts: clearDismissedAlerts,
+    pendingNotifications: pendingNotifications,
+    markNotified: markNotified,
     csvToObjects: csvToObjects,
     toCSV: toCSV,
     parseDateLoose: parseDateLoose,

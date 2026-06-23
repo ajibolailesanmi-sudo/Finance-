@@ -459,6 +459,8 @@
       return '<div class="form-row"><label>1 ' + c + " = ? " + base + '</label><input type="number" step="0.0001" min="0" class="rate-input" data-cur="' + c + '" value="' + (S.rateOf(c)) + '" /></div>';
     }).join("") || '<div class="muted small">No foreign-currency accounts yet. Add an account in a different currency to set its rate.</div>';
 
+    var notifyCard = buildNotifyCard();
+
     return '<div class="grid cols-2">' +
       '<div class="card"><div class="card-title">Preferences</div>' +
       '<div class="form-row"><label>Base currency (for reports &amp; net worth)</label><select id="set-currency">' + curOpts + "</select></div>" +
@@ -469,6 +471,7 @@
       '<p class="muted small" style="margin-bottom:14px">Used to convert other currencies into ' + base + ' for net worth and reports. Update these manually as rates change.</p>' +
       rateRows +
       "</div>" +
+      notifyCard +
       '<div class="card"><div class="card-title">Your Data</div>' +
       '<p class="muted small" style="margin-bottom:14px">Everything is stored privately in this browser. Export regularly to keep a backup.</p>' +
       '<div class="form-row"><button class="ghost-btn" id="export-data">⬇️ Export backup (JSON)</button></div>' +
@@ -483,6 +486,29 @@
       '<div class="form-row"><button class="ghost-btn" id="download-template">📄 Download CSV template</button></div>' +
       "</div></div>";
   };
+
+  function buildNotifyCard() {
+    var st = S.getState();
+    var head = '<div class="card"><div class="card-title">Desktop Notifications</div>';
+    if (!notifySupported()) {
+      return head + '<p class="muted small">This browser doesn\'t support desktop notifications.</p></div>';
+    }
+    var perm = notifyPermission();
+    var body;
+    if (perm === "denied") {
+      body = '<p class="muted small">Notifications are <strong>blocked</strong> for this site. Re-enable them in your browser\'s site settings (look for the 🔒/ⓘ icon in the address bar), then reload.</p>';
+    } else if (perm === "granted") {
+      var on = !!st.settings.notifyEnabled;
+      body = '<p class="muted small" style="margin-bottom:12px">Get a desktop alert when a bill is due or overdue (within your ' + S.alertLeadDays() + '-day window).</p>' +
+        '<label class="check-row"><input type="checkbox" id="notify-toggle"' + (on ? " checked" : "") + ' /> <span>Enable bill notifications <span class="muted small">— ' + (on ? "on" : "off") + "</span></span></label>" +
+        '<div class="form-row" style="margin-top:14px"><button class="ghost-btn" id="notify-test">🔔 Send a test notification</button></div>' +
+        '<p class="muted small">Notifications appear while FinTrack is open or when you return to the tab. (Alerts when the browser is fully closed would need a server, which this app doesn\'t use.)</p>';
+    } else {
+      body = '<p class="muted small" style="margin-bottom:12px">Allow desktop notifications to be reminded about due and overdue bills.</p>' +
+        '<div class="form-row"><button class="primary-btn" id="notify-enable" style="width:100%">Enable notifications</button></div>';
+    }
+    return head + body + "</div>";
+  }
 
   /* ============================================================
      MODALS / FORMS
@@ -880,6 +906,89 @@
     }
   }
 
+  /* ---------- Desktop (browser) notifications ---------- */
+  var swReg = null;
+
+  function notifySupported() { return typeof window !== "undefined" && "Notification" in window; }
+  function notifyPermission() { return notifySupported() ? window.Notification.permission : "unsupported"; }
+
+  function initNotifications() {
+    if (!notifySupported()) return;
+    // A service worker (only over http/https, not file://) lets notifications
+    // render while the tab is backgrounded and handles click-to-focus.
+    try {
+      if (navigator.serviceWorker && location.protocol !== "file:") {
+        navigator.serviceWorker.register("sw.js").then(function (reg) { swReg = reg; }).catch(function () {});
+      }
+    } catch (e) { /* ignore */ }
+    // Re-check when the user comes back to the tab, or once an hour while open.
+    document.addEventListener("visibilitychange", function () { if (!document.hidden) runNotificationCheck(); });
+    window.addEventListener("focus", runNotificationCheck);
+    setInterval(runNotificationCheck, 60 * 60 * 1000);
+  }
+
+  function showSystemNotification(title, body, tag) {
+    var opts = { body: body, tag: tag, renotify: false };
+    try {
+      if (swReg && swReg.showNotification) swReg.showNotification(title, opts);
+      else new window.Notification(title, opts);
+      return true;
+    } catch (e) { return false; }
+  }
+
+  // Notify (once per occurrence) about bills the user hasn't seen yet.
+  function runNotificationCheck() {
+    var st = S.getState();
+    if (!st.settings.notifyEnabled) return;
+    if (notifyPermission() !== "granted") return;
+    var pending = S.pendingNotifications();
+    if (!pending.length) return;
+
+    if (pending.length === 1) {
+      var a = pending[0];
+      var acct = S.accountById(a.accountId);
+      var when = a.days < 0 ? (Math.abs(a.days) + " days overdue")
+        : (a.days === 0 ? "due today" : "due in " + a.days + " days");
+      showSystemNotification(
+        a.status === "overdue" ? "Bill overdue" : "Bill due soon",
+        a.name + " — " + S.fmtMoney(a.amount, { currency: S.accountCurrency(a.accountId) }) +
+          " " + when + (acct ? " (" + acct.name + ")" : ""),
+        "fintrack-" + a.key
+      );
+    } else {
+      var overdue = pending.filter(function (p) { return p.status === "overdue"; }).length;
+      var names = pending.slice(0, 4).map(function (p) { return p.name; }).join(", ") + (pending.length > 4 ? "…" : "");
+      showSystemNotification(
+        pending.length + " bills need attention" + (overdue ? " (" + overdue + " overdue)" : ""),
+        names, "fintrack-summary"
+      );
+    }
+    S.markNotified(pending.map(function (p) { return p.key; }));
+  }
+
+  function requestNotifyPermission(cb) {
+    var done = false;
+    function handle(perm) { if (done) return; done = true; cb(perm); }
+    try {
+      var ret = window.Notification.requestPermission(handle);   // legacy callback form
+      if (ret && typeof ret.then === "function") ret.then(handle); // modern promise form
+    } catch (e) { handle("denied"); }
+  }
+
+  function enableNotifications() {
+    if (!notifySupported()) { toast("This browser doesn't support notifications.", "error"); return; }
+    requestNotifyPermission(function (perm) {
+      if (perm === "granted") {
+        S.getState().settings.notifyEnabled = true; S.save();
+        toast("Desktop notifications enabled.", "success");
+        runNotificationCheck();
+      } else {
+        toast("Notification permission " + perm + ".", "error");
+      }
+      render();
+    });
+  }
+
   function handleRootClick(e) {
     var btn = e.target.closest("[data-act]"); if (!btn) return;
     var container = btn.closest("[data-id]"); if (!container) return;
@@ -1019,6 +1128,17 @@
     });
     $("#theme-light").onclick = function () { applyTheme("light"); render(); };
     $("#theme-dark").onclick = function () { applyTheme("dark"); render(); };
+    if ($("#notify-enable")) $("#notify-enable").onclick = enableNotifications;
+    if ($("#notify-toggle")) $("#notify-toggle").onchange = function (e) {
+      st.settings.notifyEnabled = e.target.checked; S.save();
+      toast(e.target.checked ? "Bill notifications on." : "Bill notifications off.", "success");
+      if (e.target.checked) runNotificationCheck();
+      render();
+    };
+    if ($("#notify-test")) $("#notify-test").onclick = function () {
+      var ok = showSystemNotification("FinTrack", "This is a test notification — you're all set.", "fintrack-test");
+      toast(ok ? "Test notification sent." : "Couldn't show a notification.", ok ? "success" : "error");
+    };
     $("#export-data").onclick = exportData;
     $("#import-data").onclick = function () { $("#import-file").click(); };
     $("#import-file").onchange = importData;
@@ -1215,6 +1335,7 @@
     S.load();
     applyTheme(S.getState().settings.theme || "light");
     installDelegation();
+    initNotifications();
 
     // Auto-post any recurring items that have come due since the last visit.
     var autoSummary = S.runAutoPosts();
@@ -1234,6 +1355,9 @@
     if (autoSummary.count) {
       toast("⚡ Auto-posted " + autoSummary.count + " recurring transaction(s): " + autoSummary.names.join(", "), "success");
     }
+
+    // Fire desktop notifications for anything currently due (no-op unless enabled & permitted).
+    runNotificationCheck();
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
