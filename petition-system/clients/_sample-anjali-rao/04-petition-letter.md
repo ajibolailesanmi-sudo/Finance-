@@ -65,11 +65,22 @@ endeavor framed as a job title ("machine-learning scientist") is a recognized
 cause of denial. The arguments below are directed at this specific endeavor.
 
 Dr. Rao is a Senior Research Scientist at HydroAI Labs and has worked in machine
-learning for climate resilience for approximately eight years since beginning her
-Ph.D. (Exhibit 1, curriculum vitae). We note at the outset that Exhibit 1 is the
-petitioner's own self-authored CV; it frames the case but is **not** independent
-corroboration of any contested fact. The corroborating exhibits identified below
-are what carry the burden.
+learning for climate resilience since her graduate studies (Exhibit 1, curriculum
+vitae). We note at the outset that Exhibit 1 is the petitioner's own self-authored
+CV; it frames the case but is **not** independent corroboration of any contested
+fact. The corroborating exhibits identified below are what carry the burden.
+
+> `[CONFIRM: exact years in the field / Ph.D. start and end dates. The source CV
+> states "8 years in the field (since Ph.D. start)" while separately listing a
+> 2015 B.Tech (IIT Bombay) and a 2020 Ph.D. (Michigan). Taken at face value these
+> are difficult to reconcile: "8 years since Ph.D. start" measured from today
+> would place the Ph.D.'s start around 2018, which would leave an unexplained gap
+> between the 2015 B.Tech and 2018, and would compress the Ph.D. itself into
+> roughly two years before its 2020 completion — atypically short for a research
+> doctorate. Do not state a specific "years in the field" figure in the filed
+> letter, the CV, or any form until the client confirms exact start/end dates and
+> they are made consistent across every document in the package (see QA report,
+> cross-document consistency findings).]`
 
 ---
 
@@ -178,10 +189,10 @@ any progress toward achieving the endeavor; and the interest of potential
 customers, users, or other relevant entities. *Id.* This prong does not require a
 guarantee of ultimate success; it asks about capacity and trajectory. *Id.*
 
-This is the prong where the case lives. It is also the prong most exposed on the
-current record: **as of today, not one of the corroborating exhibits below exists
-in the file.** We set out the argument and mark each supporting exhibit as a gap
-so that no assertion outruns the evidence.
+This prong is the center of gravity for the petition. It is also the prong most
+exposed on the current record: **as of today, not one of the corroborating
+exhibits below exists in the file.** We set out the argument and mark each
+supporting exhibit as a gap so that no assertion outruns the evidence.
 
 **(a) Record of success — publications and citations.** Dr. Rao reports 19
 peer-reviewed papers at leading venues (including NeurIPS, ICML, Water Resources
@@ -337,11 +348,6 @@ needs.
 
 ## VI. Conclusion
 
-For the foregoing reasons, the applicable legal framework — *Matter of Dhanasar*,
-applied under the **preponderance-of-the-evidence** standard — supports approval
-of this petition and of the requested national interest waiver, once the
-corroborating exhibits identified above are in the record.
-
 We state plainly, consistent with the evidence map (`03-evidence-map.md` §2),
 that **on the current documentary record none of the three prongs is yet met** —
 the legal theory is sound and, per the strategy memo, arguably strong, but every
@@ -353,12 +359,18 @@ national-importance source (Exhibit 24), and the base-eligibility degree documen
 (Exhibit 2). This draft must not be filed until those exhibits exist and the
 prong arguments above are conformed to what they actually say.
 
-> For the foregoing reasons, the evidence — once the exhibits identified above are
-> obtained — is intended to establish by a preponderance of the evidence that the
-> beneficiary qualifies for EB-2 classification with a national interest waiver
-> under INA § 203(b)(2)(B)(i). We respectfully request approval of this petition.
-> **(This request is contingent on closing the documented gaps above; it is not
-> supportable on the present record.)**
+> **Model closing paragraph for the filed version (once the gaps above are
+> closed):** "For the foregoing reasons, the applicable legal framework — *Matter
+> of Dhanasar*, applied under the preponderance-of-the-evidence standard —
+> establishes by a preponderance of the evidence that the beneficiary qualifies
+> for EB-2 classification with a national interest waiver under INA §
+> 203(b)(2)(B)(i). We respectfully request approval of this petition."
+>
+> **QA note (not filing language — do not submit this bracketed note to
+> USCIS):** the paragraph above is a template for the final letter only. It must
+> not be used until every `[GAP]` exhibit listed above is actually in the
+> record and the prong arguments are conformed to what those exhibits actually
+> show. On the present file, this request is not yet supportable.
 
 Respectfully submitted,
 
