@@ -13,6 +13,16 @@ python3 -m pip install -r requirements.txt   # pyyaml, jsonschema, pytest
 python3 scripts/bootstrap.py                  # F0 — idempotent; safe to run twice
 ```
 
+## Discovery spike (A3) — verify real endpoints are readable
+```bash
+# Offline self-test of the instrument (no network):
+python3 scripts/spike_discovery.py --fixtures tests/fixtures/spike
+# Live probe (needs an environment whose network policy permits egress to
+# boards-api.greenhouse.io / api.lever.co; confirm tokens in config/spike_candidates.yaml):
+python3 scripts/spike_discovery.py
+```
+See PROJECT_BIBLE.md §17 for the current A3 status.
+
 ## Run the pipeline
 ```bash
 # F1 discovery -> F2 scoring. --fixtures runs offline against saved payloads.

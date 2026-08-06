@@ -462,7 +462,7 @@ Claims are reported in four separate buckets — **automated proof** (tests), **
 | **D6** | Claude model pin + API budget cap | Set in `settings.yaml` at F0; budget is a stop-condition item (Candidate approves spend) |
 | **A1** | Brief §7 stack accepted as-is | Accepted |
 | **A2** | Personal cloud backup optional; if used, encrypted | Candidate choice |
-| **A3** | Greenhouse/Lever expose readable posting endpoints | Unverified until the Phase 1 spike runs against real target companies |
+| **A3** | Greenhouse/Lever expose readable posting endpoints | **Instrument built & proven; live verification BLOCKED in the current environment** — see §17. Egress to `boards-api.greenhouse.io` and `api.lever.co` is denied by this environment's network policy (403). The spike (`scripts/spike_discovery.py`) is ready to run where egress is permitted. |
 
 ---
 
@@ -508,4 +508,40 @@ work_arrangement: [remote, hybrid]
 
 ---
 
-*End of foundation pack v0.1. First action: F0 bootstrap + the Phase 1 discovery spike (A3). Update this Bible when the spike lands.*
+## 17. Phase 1 Discovery Spike — Findings (A3)
+
+Status: **A3 remains UNVERIFIED — blocked by environment network policy, not by design.**
+
+The spike is built as a proper instrument, not a one-off curl: `scripts/spike_discovery.py`
+(+ `src/jobagent/discovery/spike.py`) probes each candidate endpoint **once, read-only,
+under pacing (I6)**, runs the payload through the real adapters + normalizer, and reports
+reachability/parseability. It never writes to `app.db` and never enables a source.
+
+**What ran:**
+- **Instrument self-test (offline, no network):** `--fixtures tests/fixtures/spike` →
+  3/5 candidates parsed across greenhouse + lever + rss, 6 postings normalized,
+  `A3 verified: True`, exit 0. Proves the tool correctly distinguishes readable from
+  unreadable endpoints. Covered by `tests/test_spike.py` (6 tests).
+- **Live probe (this environment):** all endpoints returned
+  `URLError: Tunnel connection failed: 403 Forbidden`. The agent egress proxy denies
+  `boards-api.greenhouse.io` and `api.lever.co` by organization network policy
+  (confirmed via the proxy status log). Per proxy rules, policy denials are not retried
+  or routed around. `A3 verified: False`, exit 1.
+
+**Conclusion:** the readable-endpoint assumption cannot be confirmed *from this container*
+because outbound access to the job-board hosts is blocked. To land A3, run the spike in an
+environment whose network policy permits egress to those hosts (see the remote-environment
+network-policy docs), or widen this environment's policy:
+```bash
+python3 scripts/spike_discovery.py            # confirm/correct tokens in config/spike_candidates.yaml first
+```
+Candidate tokens in `config/spike_candidates.yaml` are seeds (D3) — confirm them before the run.
+
+**Still Candidate-gated after A3 lands:** *enabling* any verified source for automated
+nightly runs is a ToS decision (stop condition §10). The spike verifies; it does not enable.
+
+---
+
+*End of foundation pack v0.1. F0 bootstrap ✓ and Phase 1 pipeline ✓ (F0–F3, F8, F12) are
+built and tested; the discovery spike instrument ✓ is proven, with live A3 verification
+pending an egress-permitted environment. Update this Bible when A3 lands.*

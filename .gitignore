@@ -5,6 +5,7 @@ node_modules/
 # --- Job application agent ---
 .env
 data/app.db
+data/spike_report.json
 data/screenshots/
 materials/
 review/*.csv
