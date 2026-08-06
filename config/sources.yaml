@@ -1,0 +1,53 @@
+# Discovery source registry (F0.2). SEED — the Candidate finalizes company
+# tokens and confirms each source's ToS before enabling live fetches.
+#
+# A3 is UNVERIFIED until the Phase 1 spike runs these endpoints against real
+# target companies. Until then the pipeline is exercised offline via fixtures.
+#
+# I5: LinkedIn appears ONLY as a permanently denylisted, disabled entry so the
+#     exclusion is explicit, not implicit. Do not remove it.
+# I6: every source MUST declare pacing.min_interval or it refuses to load.
+
+sources:
+  - id: gh-example-cgt
+    type: board_api
+    name: "Example CGT Co (Greenhouse)"
+    enabled: true
+    config:
+      platform: greenhouse
+      company: EXAMPLE_CGT_CO        # TODO(F0.2): real Greenhouse board token
+      endpoint: "https://boards-api.greenhouse.io/v1/boards/EXAMPLE_CGT_CO/jobs?content=true"
+    pacing: { min_interval: 3.0, jitter: 2.0, nightly_cap: 100 }
+    alert_threshold: 3
+
+  - id: lever-example-bio
+    type: board_api
+    name: "Example Biologics (Lever)"
+    enabled: true
+    config:
+      platform: lever
+      company: EXAMPLE_BIO           # TODO(F0.2): real Lever company token
+      endpoint: "https://api.lever.co/v0/postings/EXAMPLE_BIO?mode=json"
+    pacing: { min_interval: 3.0, jitter: 2.0, nightly_cap: 100 }
+    alert_threshold: 3
+
+  - id: rss-lifesci-board
+    type: rss
+    name: "Life-sciences job feed (RSS)"
+    enabled: true
+    config:
+      company: ""                    # feeds rarely carry company structurally
+      endpoint: "https://example.com/lifesciences/jobs.rss"   # TODO(F0.2)
+    pacing: { min_interval: 5.0, jitter: 3.0, nightly_cap: 50 }
+    alert_threshold: 3
+
+  # ---- Permanent denylist entry (I5). Never enable. ----
+  - id: linkedin
+    type: scraper
+    name: "LinkedIn (manual-only forever)"
+    enabled: false
+    denylisted: true
+    config:
+      endpoint: "https://www.linkedin.com/jobs/"
+    pacing: { min_interval: 999999, jitter: 0, nightly_cap: 0 }
+    alert_threshold: 1

@@ -1,0 +1,15 @@
+# accomplishments.yaml (F0.1) — the ONLY source of quantified claims for
+# generated materials (I3). The agent never invents entries. Every entry the
+# Candidate personally verifies gets a `verified_at` date; an entry without
+# verified_at is unusable by F4 (Phase 2).
+#
+# Phase 1 ships this as a validated-but-mostly-empty template; Phase 2 hardens it.
+# Linter: scripts/lint_library.py (run by bootstrap).
+
+accomplishments:
+  - id: acc-001
+    statement: ""        # what was accomplished, in the Candidate's words
+    metric: ""           # the quantified result, exactly as defensible
+    context: ""          # company / program / modality / stage
+    evidence_note: ""    # where this is documented (review, filing, appraisal)
+    verified_at: null    # YYYY-MM-DD the Candidate personally verified this

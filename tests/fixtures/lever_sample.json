@@ -1,0 +1,18 @@
+[
+  {
+    "id": "abc-123",
+    "text": "VP, Regulatory CMC",
+    "categories": {"location": "Remote", "team": "Regulatory", "commitment": "Full-time"},
+    "hostedUrl": "https://jobs.lever.co/examplebio/abc-123",
+    "createdAt": 1753800000000,
+    "descriptionPlain": "Own agency-facing CMC regulatory for biologics, IND through BLA."
+  },
+  {
+    "id": "def-456",
+    "text": "Head of Quality",
+    "categories": {"location": "Cambridge, MA", "team": "Quality"},
+    "hostedUrl": "https://jobs.lever.co/examplebio/def-456",
+    "createdAt": 1753700000000,
+    "descriptionPlain": "GMP quality leadership for ATMP manufacturing."
+  }
+]

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Life Sciences Jobs</title>
+    <item>
+      <title>Executive Director, CMC Regulatory Affairs</title>
+      <link>https://example.com/jobs/9001</link>
+      <description>Cell &amp; gene therapy CMC leadership, remote.</description>
+      <pubDate>Wed, 30 Jul 2026 10:00:00 GMT</pubDate>
+      <guid>example-9001</guid>
+    </item>
+    <item>
+      <title>Director, Quality Compliance</title>
+      <link>https://example.com/jobs/9002</link>
+      <description>Quality systems and CAPA for biologics.</description>
+      <pubDate>Tue, 29 Jul 2026 10:00:00 GMT</pubDate>
+      <guid>example-9002</guid>
+    </item>
+  </channel>
+</rss>

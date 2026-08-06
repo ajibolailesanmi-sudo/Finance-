@@ -1,0 +1,25 @@
+# Search profile (F0.2 / §16 seed). Candidate finalizes TODO fields at F0.
+# D4 marks comp floor / metro / relocation as blocking for F2 QUALITY (not F0/F1).
+
+target_titles:
+  - Director / Senior Director / VP — Regulatory Affairs CMC
+  - Head of Regulatory CMC | Regulatory CMC Lead
+  - Director / Senior Director / VP — Quality (QA, Quality Systems)
+  - Head of Quality | Quality & Compliance leadership
+  - CMC Program / Technical Operations leadership
+
+keywords:
+  include: [CMC, regulatory affairs, cell therapy, gene therapy, CGT, ATMP,
+            biologics, IND, BLA, MAA, GMP, quality systems, CAPA, tech transfer,
+            comparability, analytical development, sterile / aseptic]
+  exclude: [clinical operations only, medical device only, TODO]
+
+seniority: [Director, Senior Director, Executive Director, VP]
+
+geography:
+  metro: TODO             # Candidate's metro area
+  remote: US-remote acceptable
+  relocation: TODO
+
+compensation_floor: TODO  # annual base, USD
+work_arrangement: [remote, hybrid]
