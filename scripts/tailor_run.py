@@ -21,6 +21,7 @@ from jobagent.common import config as cfg
 from jobagent.common import db as dbm
 from jobagent.common.alerts import AlertCollector
 from jobagent.tailoring.generate import run_tailoring
+from jobagent.tailoring.llm_tailor import make_tailor
 from jobagent.tailoring.library_loader import EmptyLibraryError, load_library
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -49,8 +50,11 @@ def main(argv=None) -> int:
         return 2
 
     alerts = AlertCollector()
+    # Real Claude tailor only if the Candidate opted in (D6); else the offline mock.
+    tailor = make_tailor(settings)
     summary = run_tailoring(conn, library, materials_root=ROOT / args.materials,
-                            voice_guide=voice, criteria=criteria, now=_now(), alerts=alerts)
+                            voice_guide=voice, criteria=criteria, now=_now(),
+                            tailor=tailor, alerts=alerts)
     print(f"Tailoring: {summary['drafted']} drafted, {summary['flagged']} flagged (claim violations).")
     for line in alerts.summary_lines():
         print("  ", line)
