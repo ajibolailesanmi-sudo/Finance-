@@ -6,8 +6,13 @@ jsonschema>=4.0
 # Test tooling
 pytest>=7.0
 
-# --- Later phases (not required for Phase 1 offline runs) ---
+# F6 pre-fill (Phase 3): needed ONLY for real attended browser sessions.
+# The full offline test suite (incl. the F6 halt-at-review proof via FakeDriver)
+# runs without it. Chromium is provided by the environment; do not run
+# `playwright install`.
+# playwright>=1.44
+
+# --- Later phases (not required for offline runs) ---
 # httpx>=0.27          # F1 live fetch
 # feedparser>=6.0      # optional richer RSS
-# playwright>=1.44     # F6 pre-fill (Phase 3)
 # anthropic>=0.40      # F2/F4 real LLM calls, after spend approval (D6)

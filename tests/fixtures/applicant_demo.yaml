@@ -1,0 +1,8 @@
+# DEMO applicant profile for tests / offline pre-fill proof. Not real PII.
+first_name: "Ola"
+last_name: "Candidate"
+email: "ola.candidate@example.com"
+phone: "+1-555-0100"
+location: "Remote - US"
+current_org: "Example Bio"
+linkedin_url: ""

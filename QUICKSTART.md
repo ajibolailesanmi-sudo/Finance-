@@ -57,6 +57,27 @@ Populate `library/accomplishments.yaml` with verified entries first — the ship
 file is a blank template, so F4 refuses it by design (see `tests/fixtures/library_demo/`
 for a populated example).
 
+## Phase 3 — pre-fill (F6) + human submit (F7)
+The automation layer has **no submit code path (I1)** — it fills each APPROVED
+application up to the review screen and halts; you submit personally.
+```bash
+cp config/applicant.example.yaml config/applicant.yaml   # fill your details (gitignored, PII)
+
+# F6 offline halt-at-review proof against local fixture forms:
+python3 scripts/prefill_session.py --fixtures tests/fixtures/forms --profile tests/fixtures/applicant_demo.yaml
+# F6 real, attended, visible browser (needs a display + config/applicant.yaml):
+python3 scripts/prefill_session.py
+
+# F7 Gate 3 — you review each pre-filled form and submit it yourself, then record it:
+python3 scripts/submit_confirm.py list
+python3 scripts/submit_confirm.py submit <app_id> --ref "<employer confirmation>"
+python3 scripts/submit_confirm.py withdraw <app_id> --note "…"
+```
+
+> **I1 review gate:** every change under `src/jobagent/prefill/` requires human code
+> review confirming no submit-activating path was introduced. The static/AST audit
+> in `tests/test_prefill_nosubmit.py` runs on every test invocation as the automated backstop.
+
 ## Tests
 ```bash
 python3 -m pytest -q        # 40 tests: invariants I2/I4/I5/I6/I7, dedup, health, gates

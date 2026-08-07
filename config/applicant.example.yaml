@@ -1,0 +1,11 @@
+# Applicant profile template (F6). Copy to config/applicant.yaml (gitignored, I7)
+# and fill with the Candidate's real details. Names only here — never real PII.
+first_name: ""
+last_name: ""
+email: ""
+phone: ""
+location: ""
+current_org: ""
+# The Candidate's OWN LinkedIn profile URL, for manual use only. The agent never
+# automates LinkedIn (I5).
+linkedin_url: ""

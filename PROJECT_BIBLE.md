@@ -542,9 +542,15 @@ nightly runs is a ToS decision (stop condition §10). The spike verifies; it doe
 
 ---
 
-**Build status:** Phase 1 ✓ (F0–F3, F8, F12) and Phase 2 ✓ (F0.1 hardened, F4, F5, F10
-drafting) are built and tested (63 tests). The discovery spike instrument ✓ is proven;
-live A3 verification is pending an egress-permitted environment. Phase 3 (F6/F7 pre-fill —
-no submit path, I1) and Phase 4 (F9/F11 + hardening) remain.
+**Build status:** Phase 1 ✓ (F0–F3, F8, F12), Phase 2 ✓ (F0.1 hardened, F4, F5, F10
+drafting), and Phase 3 ✓ (F6 pre-fill, F7 human submit) are built and tested (77 tests).
+The discovery spike instrument ✓ is proven; live A3 verification is pending an
+egress-permitted environment. Phase 4 (F9/F11 + hardening) remains.
+
+Phase 3 I1 evidence: the no-submit static + AST source audit passes; `FormDriver` exposes
+no submit method; every driver click passes `guard_no_submit`; offline runtime proof halts
+each form at the review screen with a capture; a real Playwright run against a fixture form
+produced a PNG of the filled form with the submit button un-clicked and the driver refused
+to activate it. Per I1, every `src/jobagent/prefill/` change also requires human code review.
 
 *End of foundation pack v0.1. Update this Bible when A3 lands and as phases complete.*

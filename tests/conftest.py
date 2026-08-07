@@ -20,14 +20,15 @@ def conn():
     c.close()
 
 
-def make_posting(conn, *, company="Acme", title="Director", url=None, dedup_key=None) -> int:
+def make_posting(conn, *, company="Acme", title="Director", url=None, dedup_key=None,
+                 ats="greenhouse") -> int:
     from jobagent.discovery.normalize import dedup_key as mk_key
     url = url or f"https://ex.com/{title.replace(' ', '-').lower()}"
     key = dedup_key or mk_key(company, title, url)
     cur = conn.execute(
         "INSERT INTO postings (dedup_key, company, title, apply_url, ats_platform, first_seen_at)"
-        " VALUES (?, ?, ?, ?, 'greenhouse', ?)",
-        (key, company, title, url, NOW),
+        " VALUES (?, ?, ?, ?, ?, ?)",
+        (key, company, title, url, ats, NOW),
     )
     return cur.lastrowid
 

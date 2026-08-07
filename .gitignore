@@ -4,6 +4,7 @@ node_modules/
 
 # --- Job application agent ---
 .env
+config/applicant.yaml
 data/app.db
 data/spike_report.json
 data/screenshots/
