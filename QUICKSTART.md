@@ -54,8 +54,12 @@ python3 scripts/gate2_review.py approve <app_id>            # locks versions, ->
 python3 scripts/gate2_review.py rework <app_id> --notes "…" # bounce back to F4
 ```
 Populate `library/accomplishments.yaml` with verified entries first — the shipped
-file is a blank template, so F4 refuses it by design (see `tests/fixtures/library_demo/`
-for a populated example).
+file is a blank template, so F4 refuses it by design (see `library/README.md` for
+the guide and `tests/fixtures/library_demo/` for a populated example). Check what's
+still blocking each flow anytime:
+```bash
+python3 scripts/check_library.py     # F0.1 readiness report
+```
 
 ## Phase 3 — pre-fill (F6) + human submit (F7)
 The automation layer has **no submit code path (I1)** — it fills each APPROVED
