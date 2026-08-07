@@ -1,0 +1,20 @@
+{
+  "jobs": [
+    {
+      "id": 101,
+      "title": "Senior Director, Regulatory Affairs CMC",
+      "updated_at": "2026-07-30T12:00:00Z",
+      "location": {"name": "Remote - US"},
+      "absolute_url": "https://boards.greenhouse.io/examplecgt/jobs/101",
+      "content": "&lt;p&gt;Lead &lt;b&gt;CMC&lt;/b&gt; regulatory strategy for gene therapy programs, IND to BLA.&lt;/p&gt;"
+    },
+    {
+      "id": 102,
+      "title": "Director, Quality Systems",
+      "updated_at": "2026-07-29T09:00:00Z",
+      "location": {"name": "Boston, MA (Hybrid)"},
+      "absolute_url": "https://boards.greenhouse.io/examplecgt/jobs/102",
+      "content": "&lt;p&gt;Own CAPA and quality systems for a cell therapy CDMO.&lt;/p&gt;"
+    }
+  ]
+}

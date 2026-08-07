@@ -1,3 +1,17 @@
 .DS_Store
 node_modules/
 *.log
+
+# --- Job application agent ---
+.env
+config/applicant.yaml
+data/app.db
+data/demo.db
+data/spike_report.json
+data/digest_latest.txt
+data/screenshots/
+materials/
+review/*.csv
+__pycache__/
+*.pyc
+.pytest_cache/

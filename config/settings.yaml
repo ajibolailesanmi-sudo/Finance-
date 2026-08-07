@@ -1,0 +1,36 @@
+# Global settings (F0). Model pin + budget cap are Candidate decisions (D6).
+# Secrets NEVER live here — only in the OS keychain or a gitignored .env (I8).
+
+llm:
+  # Model id is pinned by the Candidate at F0. Left blank so nothing runs a paid
+  # model by accident; scoring uses the offline MockLLMClient until this is set
+  # AND spend is explicitly authorized (stop condition).
+  model_id: ""            # TODO(F0): e.g. a claude-* model id (D6)
+  spend_authorized: false # must be flipped by the Candidate (D6)
+  max_retries: 1
+  max_tokens_response: 16000   # per-call output cap for the real Claude client
+
+scoring:
+  criteria_version: "criteria-v1"
+
+pacing:               # I6 defaults; per-source pacing overrides these
+  default:
+    min_interval: 3.0   # seconds between requests
+    jitter: 2.0
+    nightly_cap: 200
+
+health:
+  default_alert_threshold: 3   # consecutive failures before auto-disable
+
+status:
+  stale_after_days: 21   # F8 STALE suggestion threshold
+
+reminders:               # F9 per-state cadence (days)
+  followup_days: 7       # SUBMITTED / ACKNOWLEDGED / SCREENING silence
+  gate2_days: 3          # DRAFTED awaiting Gate 2
+  submit_days: 3         # PREFILLED awaiting the Candidate's submit
+
+digest:
+  window_days: 7         # F9 weekly digest activity window
+
+db_path: "data/app.db"

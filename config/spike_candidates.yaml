@@ -1,0 +1,42 @@
+# Phase 1 discovery spike candidates (A3). SEED — the Candidate confirms/corrects
+# tokens (D3/F0.2). These are plausible target-company ATS board tokens across
+# cell & gene therapy, biologics, and CDMOs; the spike reports which actually
+# resolve to readable, parseable postings. Nothing here is "enabled" for
+# production — the spike only probes.
+#
+# platform: greenhouse -> token is the Greenhouse board token
+#           lever      -> token is the Lever company token
+#           rss/other  -> `endpoint` is a full feed URL
+#
+# HOW TO RUN (in an environment whose network policy permits egress to
+# boards-api.greenhouse.io and api.lever.co):
+#   python3 scripts/spike_discovery.py
+# Offline self-test of the instrument (no network):
+#   python3 scripts/spike_discovery.py --fixtures tests/fixtures/spike
+
+candidates:
+  # --- Greenhouse boards (token UNVERIFIED — Candidate confirms) ---
+  - label: "Vir Biotechnology (Greenhouse?)"
+    platform: greenhouse
+    token: vir
+    company: "Vir Biotechnology"
+  - label: "Intellia Therapeutics (Greenhouse?)"
+    platform: greenhouse
+    token: intelliatherapeutics
+    company: "Intellia Therapeutics"
+  - label: "Sana Biotechnology (Greenhouse?)"
+    platform: greenhouse
+    token: sanabiotechnology
+    company: "Sana Biotechnology"
+
+  # --- Lever boards (token UNVERIFIED — Candidate confirms) ---
+  - label: "Example CGT (Lever?)"
+    platform: lever
+    token: TODO_LEVER_TOKEN
+    company: "TODO"
+
+  # --- RSS / board feed (URL UNVERIFIED — Candidate confirms) ---
+  - label: "Life-sciences board RSS"
+    platform: rss
+    endpoint: "https://example.com/lifesciences/jobs.rss"
+    company: ""

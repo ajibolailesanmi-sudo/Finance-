@@ -1,0 +1,22 @@
+# DEMO library for tests + the Phase 2 acceptance run. NOT the Candidate's real
+# data — a populated, verified fixture so F4/F5 can be exercised end-to-end and
+# the I3 planted-fabrication tests have a real backing library.
+accomplishments:
+  - id: acc-001
+    statement: "Led the CMC regulatory strategy for a gene therapy program from IND to BLA"
+    metric: "3 successful IND filings"
+    context: "Cell & gene therapy, clinical-stage biotech"
+    evidence_note: "regulatory filing records"
+    verified_at: "2026-01-15"
+  - id: acc-002
+    statement: "Built and ran the quality systems function for an ATMP manufacturing site"
+    metric: "reduced CAPA closure time by 40%"
+    context: "CDMO, commercial GMP"
+    evidence_note: "quality metrics dashboard"
+    verified_at: "2026-01-15"
+  - id: acc-003
+    statement: "Directed agency-facing interactions across FDA and EMA for biologics programs"
+    metric: "12 major health-authority meetings led"
+    context: "Late-stage biologics"
+    evidence_note: "meeting minutes"
+    verified_at: "2026-01-20"

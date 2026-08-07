@@ -1,0 +1,26 @@
+# Phase 1 runtime deps. The pipeline + full test suite run on pyyaml + jsonschema
+# alone (discovery adapters parse with the stdlib; scoring uses the offline mock).
+pyyaml>=6.0
+jsonschema>=4.0
+
+# Test tooling
+pytest>=7.0
+
+# Optional: the D1 review dashboard (`streamlit run review/dashboard.py`). Not
+# needed for the CLI, the pipeline, or the offline test suite / CI.
+# streamlit>=1.40
+
+# F6 pre-fill (Phase 3): needed ONLY for real attended browser sessions.
+# The full offline test suite (incl. the F6 halt-at-review proof via FakeDriver)
+# runs without it. Chromium is provided by the environment; do not run
+# `playwright install`.
+# playwright>=1.44
+
+# Real Claude scoring/tailoring (F2/F4): needed ONLY after the Candidate pins a
+# model + authorizes spend (D6). The offline suite + mock scorer run without it;
+# the real client imports `anthropic` lazily, so it's a true optional dependency.
+# anthropic>=0.40
+
+# --- Later phases (not required for offline runs) ---
+# httpx>=0.27          # F1 live fetch
+# feedparser>=6.0      # optional richer RSS

@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hitl-job-agent"
+version = "0.1.0"
+description = "Human-in-the-Loop Job Application Agent (see PROJECT_BIBLE.md)"
+requires-python = ">=3.11"
+dependencies = ["pyyaml>=6.0", "jsonschema>=4.0"]
+
+[project.optional-dependencies]
+dashboard = ["streamlit>=1.40"]   # the D1 review surface (optional; CLI is the fallback)
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "review"]
+testpaths = ["tests"]
