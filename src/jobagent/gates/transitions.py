@@ -122,6 +122,13 @@ def transition(
                 # default to the assessment tier if not supplied
                 tier_at_g1 = _assessment_tier(conn, application_id)
             updates["tier_at_g1"] = tier_at_g1
+    if to_state == "APPROVED":
+        # G2: approval locks the exact versions that represent the Candidate (I4).
+        ids = approved_version_ids or _approved_version_ids(conn, application_id)
+        if not ids:
+            raise TransitionError("APPROVED requires approved_version_ids (I4)")
+        updates["approved_version_ids"] = json.dumps(ids, sort_keys=True)
+        updates["g2_approved_at"] = now
     if to_state in ("PREFILLED", "SUBMITTED"):
         # I4: cannot advance to/through prefill or submit without locked versions.
         ids = approved_version_ids or _approved_version_ids(conn, application_id)

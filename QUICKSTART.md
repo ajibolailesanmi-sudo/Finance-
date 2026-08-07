@@ -40,6 +40,23 @@ python3 scripts/status_update.py show <app_id>
 python3 scripts/status_update.py stale
 ```
 
+## Phase 2 — tailoring + Gate 2 (offline, no egress)
+```bash
+# F4 tailoring: generate a materials bundle per SHORTLISTED role. Every metric is
+# validated against the accomplishment library (I3); violating drafts are flagged,
+# not queued. Refuses an empty/unverified library (F0.1).
+python3 scripts/tailor_run.py --library library/accomplishments.yaml
+
+# F5 Gate 2 — the human materials gate
+python3 scripts/gate2_review.py list
+python3 scripts/gate2_review.py show <app_id>
+python3 scripts/gate2_review.py approve <app_id>            # locks versions, -> APPROVED
+python3 scripts/gate2_review.py rework <app_id> --notes "…" # bounce back to F4
+```
+Populate `library/accomplishments.yaml` with verified entries first — the shipped
+file is a blank template, so F4 refuses it by design (see `tests/fixtures/library_demo/`
+for a populated example).
+
 ## Tests
 ```bash
 python3 -m pytest -q        # 40 tests: invariants I2/I4/I5/I6/I7, dedup, health, gates

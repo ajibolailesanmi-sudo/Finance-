@@ -152,6 +152,33 @@ MIGRATIONS: list[tuple[int, str]] = [
         CREATE INDEX idx_assessments_posting ON assessments(posting_id);
         """,
     ),
+    (
+        2,
+        """
+        -- F10 outreach drafts (§5.7). No transport columns exist, by design (I9).
+        CREATE TABLE outreach_drafts (
+            id            INTEGER PRIMARY KEY AUTOINCREMENT,
+            application_id INTEGER REFERENCES applications(id),   -- nullable
+            contact_ref   TEXT,
+            purpose       TEXT NOT NULL CHECK (purpose IN
+                              ('referral','recruiter','follow_up','thank_you')),
+            draft_path    TEXT NOT NULL,
+            created_at    TEXT NOT NULL,
+            status        TEXT NOT NULL DEFAULT 'draft'
+                              CHECK (status IN ('draft','personalized','sent_by_human')),
+            sent_noted_at TEXT
+        );
+
+        -- I4 / immutability: once a materials version is approved it can never be
+        -- updated again — the DB refuses, backing the guard in materials_store.py.
+        CREATE TRIGGER materials_versions_immutable_after_approval
+        BEFORE UPDATE ON materials_versions
+        WHEN OLD.status = 'approved'
+        BEGIN
+            SELECT RAISE(ABORT, 'approved materials version is immutable (I4)');
+        END;
+        """,
+    ),
 ]
 
 

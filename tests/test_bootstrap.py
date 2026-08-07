@@ -7,7 +7,7 @@ NOW = "2026-08-06T00:00:00Z"
 def test_migrations_apply_once_then_noop():
     conn = dbm.connect(":memory:")
     first = dbm.migrate(conn, NOW)
-    assert first == [1]                 # applied migration 1
+    assert first == [1, 2]              # applies all pending migrations in order
     second = dbm.migrate(conn, NOW)
     assert second == []                 # nothing to re-apply (idempotent)
     conn.close()
@@ -41,7 +41,7 @@ def test_bootstrap_script_runs_twice_identically(tmp_path):
     db = str(tmp_path / "app.db")
     r1 = mod.run(db, now=NOW)
     r2 = mod.run(db, now=NOW)
-    assert r1["migrations_applied"] == [1]
+    assert r1["migrations_applied"] == [1, 2]
     assert r2["migrations_applied"] == []          # second run applies nothing
     assert r1["sources_synced"] == r2["sources_synced"]
     assert r1["library_entries"] == r2["library_entries"]

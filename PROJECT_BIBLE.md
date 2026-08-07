@@ -542,6 +542,9 @@ nightly runs is a ToS decision (stop condition §10). The spike verifies; it doe
 
 ---
 
-*End of foundation pack v0.1. F0 bootstrap ✓ and Phase 1 pipeline ✓ (F0–F3, F8, F12) are
-built and tested; the discovery spike instrument ✓ is proven, with live A3 verification
-pending an egress-permitted environment. Update this Bible when A3 lands.*
+**Build status:** Phase 1 ✓ (F0–F3, F8, F12) and Phase 2 ✓ (F0.1 hardened, F4, F5, F10
+drafting) are built and tested (63 tests). The discovery spike instrument ✓ is proven;
+live A3 verification is pending an egress-permitted environment. Phase 3 (F6/F7 pre-fill —
+no submit path, I1) and Phase 4 (F9/F11 + hardening) remain.
+
+*End of foundation pack v0.1. Update this Bible when A3 lands and as phases complete.*
