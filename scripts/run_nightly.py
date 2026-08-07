@@ -21,7 +21,8 @@ from jobagent.common import config as cfg
 from jobagent.common import db as dbm
 from jobagent.common.alerts import AlertCollector
 from jobagent.common.denylist import assert_not_denylisted
-from jobagent.common.llmclient import MockLLMClient
+from jobagent.common.llmclient import make_llm_client
+from jobagent.scoring.schema import ASSESSMENT_SCHEMA
 from jobagent.common.pacing import Pacer
 from jobagent.discovery.run import discover, enabled_sources
 from jobagent.health import monitor
@@ -73,8 +74,9 @@ def main(argv=None) -> int:
 
     resume = (ROOT / "library" / "master_resume.md").read_text(encoding="utf-8")
     criteria = (ROOT / "config" / "criteria.md").read_text(encoding="utf-8")
-    # Offline mock scorer for Phase 1 (no spend). Real client is gated by D6.
-    llm = MockLLMClient()
+    # Real Claude scorer only if the Candidate pinned a model AND authorized spend
+    # AND a key is present (D6); otherwise the offline mock. Nothing spends by default.
+    llm = make_llm_client(settings, output_schema=ASSESSMENT_SCHEMA)
     score = score_pending(conn, llm, resume, criteria, now,
                           criteria_version=settings.get("scoring", {}).get("criteria_version", "criteria-v1"),
                           alerts=alerts)

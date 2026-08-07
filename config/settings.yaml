@@ -5,9 +5,10 @@ llm:
   # Model id is pinned by the Candidate at F0. Left blank so nothing runs a paid
   # model by accident; scoring uses the offline MockLLMClient until this is set
   # AND spend is explicitly authorized (stop condition).
-  model_id: ""            # TODO(F0): e.g. a claude-* model id
+  model_id: ""            # TODO(F0): e.g. a claude-* model id (D6)
   spend_authorized: false # must be flipped by the Candidate (D6)
   max_retries: 1
+  max_tokens_response: 16000   # per-call output cap for the real Claude client
 
 scoring:
   criteria_version: "criteria-v1"
