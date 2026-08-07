@@ -6,6 +6,10 @@ jsonschema>=4.0
 # Test tooling
 pytest>=7.0
 
+# Optional: the D1 review dashboard (`streamlit run review/dashboard.py`). Not
+# needed for the CLI, the pipeline, or the offline test suite / CI.
+# streamlit>=1.40
+
 # F6 pre-fill (Phase 3): needed ONLY for real attended browser sessions.
 # The full offline test suite (incl. the F6 halt-at-review proof via FakeDriver)
 # runs without it. Chromium is provided by the environment; do not run

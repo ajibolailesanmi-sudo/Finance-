@@ -92,9 +92,18 @@ All metrics compute from the applications log alone (§11). A criteria change is
 never auto-applied to history — assessments keep the `criteria_version` that scored
 them, so the digest shows precision before/after a calibration change (F11).
 
-> **Dashboard (D1):** the optional Streamlit review surface is a major UI change and
-> requires a `flow-prototype` approval pass before a production build (§13). It is
-> intentionally **not** built; the spreadsheet/CLI + text digest are the approved surface.
+## Review dashboard (D1, optional Streamlit surface)
+Design approved via a flow-prototype pass; built as a thin view over the same
+guarded modules as the CLI (so every invariant holds, incl. **no employer-submit
+path** — Gate 3 records your own submission). The spreadsheet/CLI + text digest
+remain the fallback surface.
+```bash
+pip install streamlit
+streamlit run review/dashboard.py                       # uses config/settings.yaml db_path
+JOBAGENT_DB=/path/to/app.db streamlit run review/dashboard.py
+```
+`review/service.py` holds all the logic (no Streamlit import) and is offline-tested;
+CI runs the whole suite without Streamlit installed.
 
 ## Tests
 ```bash

@@ -454,7 +454,7 @@ Claims are reported in four separate buckets — **automated proof** (tests), **
 
 | ID | Item | Default / status |
 |---|---|---|
-| **D1** | Review surface upgrade (Streamlit) | **Design APPROVED via a flow-prototype pass (2026-08-07)** — the Candidate approved the review-dashboard design (Today + four gates + Pipeline + Weekly digest; invariants I1/I2/I3/I4/I5/I9 surfaced in-UI). The interactive prototype was throwaway/read-only and is not committed. Production Streamlit build is **deferred until explicitly requested**; the spreadsheet/CLI + text digest remain the approved fallback surface. |
+| **D1** | Review surface upgrade (Streamlit) | **BUILT (2026-08-07)** after a flow-prototype design approval. `review/dashboard.py` (Streamlit) is a thin view over `review/service.py` (offline-tested, no Streamlit import), which adapts the already-tested tracking/gates modules — so all invariants hold through the same guard (I2), Gate 3 only *records* the human submission with **no employer-submit path (I1, audited)**, approval locks versions (I4). Streamlit is an **optional** dependency (`pip install streamlit`; CI + the offline suite run without it). The spreadsheet/CLI + text digest remain the fallback surface. |
 | **D2** | Scheduler | cron (default); APScheduler only if a long-lived process emerges; n8n only if already operated |
 | **D3** | Which board APIs are usable | Phase 1 spike decides; many boards restrict access — plan assumes nothing beyond ATS endpoints + RSS until proven |
 | **D4** | Comp floor, metro, remote footprint, dealbreaker specifics | `[blocking for F2 quality, not for F0/F1]` Candidate fills §16 placeholders at F0 |

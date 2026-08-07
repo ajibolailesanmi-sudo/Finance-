@@ -29,14 +29,26 @@ def _py_files():
     return list(PREFILL_DIR.rglob("*.py"))
 
 
-def test_no_submit_action_in_prefill_sources():
+def _scan(files):
     offenders = []
-    for f in _py_files():
+    for f in files:
         for i, line in enumerate(f.read_text(encoding="utf-8").splitlines(), 1):
             for pat in _BANNED_ACTIONS:
                 if re.search(pat, line):
                     offenders.append(f"{f.name}:{i}: {line.strip()}")
+    return offenders
+
+
+def test_no_submit_action_in_prefill_sources():
+    offenders = _scan(_py_files())
     assert offenders == [], "submit-activating action found in src/prefill (I1):\n" + "\n".join(offenders)
+
+
+def test_no_submit_action_in_review_surface():
+    """I1 extends to the review dashboard: it records submissions, never performs one."""
+    review = (Path(__file__).resolve().parent.parent / "review")
+    offenders = _scan(list(review.glob("*.py")))
+    assert offenders == [], "submit-activating action found in review/ (I1):\n" + "\n".join(offenders)
 
 
 def test_formdriver_interface_has_no_submit_method():
