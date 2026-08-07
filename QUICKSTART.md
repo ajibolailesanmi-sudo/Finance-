@@ -98,8 +98,10 @@ them, so the digest shows precision before/after a calibration change (F11).
 
 ## Tests
 ```bash
-python3 -m pytest -q        # 40 tests: invariants I2/I4/I5/I6/I7, dedup, health, gates
+python3 -m pytest -q        # full offline suite: invariants I1–I9, pipeline, metrics
 ```
+CI runs the same suite on every push/PR via `.github/workflows/tests.yml`
+(offline — installs only pyyaml + jsonschema + pytest).
 
 ## What Phase 1 does NOT do yet
 - **Tailoring** (F4/F5) — Phase 2.

@@ -1,0 +1,35 @@
+name: agent-tests
+
+# Runs the Human-in-the-Loop Job Application Agent test suite (tests/).
+# The whole suite is offline — no network, no API spend — so CI needs only
+# pyyaml + jsonschema + pytest (see requirements.txt). Playwright is NOT needed:
+# the F6 pre-fill tests use the offline FakeDriver, and the real PlaywrightDriver
+# imports Playwright lazily.
+
+on:
+  pull_request:
+    paths:
+      - "src/**"
+      - "tests/**"
+      - "scripts/**"
+      - "config/**"
+      - "library/**"
+      - "requirements.txt"
+      - "pyproject.toml"
+      - ".github/workflows/tests.yml"
+  push:
+    branches:
+      - "claude/**"
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && pip install -r requirements.txt
+      - name: Run test suite
+        run: python -m pytest -q
