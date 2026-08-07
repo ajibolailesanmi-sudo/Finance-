@@ -6,6 +6,7 @@ node_modules/
 .env
 config/applicant.yaml
 data/app.db
+data/demo.db
 data/spike_report.json
 data/digest_latest.txt
 data/screenshots/
