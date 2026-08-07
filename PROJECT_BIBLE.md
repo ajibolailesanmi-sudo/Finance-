@@ -542,10 +542,18 @@ nightly runs is a ToS decision (stop condition §10). The spike verifies; it doe
 
 ---
 
-**Build status:** Phase 1 ✓ (F0–F3, F8, F12), Phase 2 ✓ (F0.1 hardened, F4, F5, F10
-drafting), and Phase 3 ✓ (F6 pre-fill, F7 human submit) are built and tested (77 tests).
-The discovery spike instrument ✓ is proven; live A3 verification is pending an
-egress-permitted environment. Phase 4 (F9/F11 + hardening) remains.
+**Build status:** Phases 1–4 core are built and tested (94 tests): Phase 1 ✓ (F0–F3,
+F8, F12), Phase 2 ✓ (F0.1 hardened, F4, F5, F10 drafting), Phase 3 ✓ (F6 pre-fill,
+F7 human submit), Phase 4 ✓ (F9 reminders + weekly digest, F11 calibration, F12
+hardened health snapshot, F0.2 source admin/re-enable). All §11 metrics are computed
+from the log alone and proven against a seeded log with hand-computed answers; the
+before/after precision view across a criteria_version change is proven (F11).
+
+**Deferred, needs Candidate approval:** the optional Streamlit dashboard (D1) is a
+major UI change and per §13 requires a `flow-prototype` approval pass before any
+production build. Not built. The spreadsheet/CLI + text digest remain the approved
+surface. The discovery spike instrument ✓ is proven; live A3 verification is pending
+an egress-permitted environment.
 
 Phase 3 I1 evidence: the no-submit static + AST source audit passes; `FormDriver` exposes
 no submit method; every driver click passes `guard_no_submit`; offline runtime proof halts

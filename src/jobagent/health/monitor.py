@@ -62,6 +62,37 @@ def record_failure(
     return disabled
 
 
+def health_snapshot(conn) -> dict:
+    """F12 hardened — persisted source health for the digest.
+
+    Auto-disabled sources need an explicit human re-enable (F0.2); they are listed
+    separately so they can't quietly stay dark. 'last success' doubles as the
+    'failing since' reference for a source in a failure streak.
+    """
+    rows = conn.execute(
+        "SELECT id, name, enabled, denylisted, consecutive_failures, "
+        "last_success_at, alert_threshold FROM sources"
+    ).fetchall()
+    sources, failing, disabled = [], [], []
+    for r in rows:
+        d = dict(r)
+        sources.append(d)
+        if r["denylisted"]:
+            continue
+        if not r["enabled"] and r["consecutive_failures"] >= r["alert_threshold"]:
+            disabled.append({"id": r["id"], "name": r["name"],
+                             "failures": r["consecutive_failures"],
+                             "last_success_at": r["last_success_at"]})
+        elif r["consecutive_failures"] > 0:
+            failing.append({"id": r["id"], "name": r["name"],
+                            "failures": r["consecutive_failures"],
+                            "last_success_at": r["last_success_at"]})
+    ok = sum(1 for r in rows if r["enabled"] and not r["denylisted"]
+             and r["consecutive_failures"] == 0)
+    return {"ok": ok, "failing": failing, "auto_disabled": disabled,
+            "total_sources": len(rows)}
+
+
 def run_summary_line(summary: dict, alerts: AlertCollector) -> str:
     """One-line nightly health summary (e.g. '3 sources OK, 1 failing')."""
     ok = summary.get("sources_ok", 0)

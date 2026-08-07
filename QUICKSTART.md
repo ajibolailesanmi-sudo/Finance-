@@ -78,6 +78,24 @@ python3 scripts/submit_confirm.py withdraw <app_id> --note "…"
 > review confirming no submit-activating path was introduced. The static/AST audit
 > in `tests/test_prefill_nosubmit.py` runs on every test invocation as the automated backstop.
 
+## Phase 4 — operate & calibrate (offline, from the log)
+```bash
+# F9 weekly digest: activity, §11 metrics, source health (F12), calibration (F11), reminders
+python3 scripts/weekly_digest.py --window 7        # writes data/digest_latest.txt
+python3 scripts/weekly_digest.py --json            # raw digest dict
+
+# F0.2 source registry admin (re-enable an auto-disabled source after a fix)
+python3 scripts/sources_admin.py list
+python3 scripts/sources_admin.py reenable <source_id>   # refused for LinkedIn (I5)
+```
+All metrics compute from the applications log alone (§11). A criteria change is
+never auto-applied to history — assessments keep the `criteria_version` that scored
+them, so the digest shows precision before/after a calibration change (F11).
+
+> **Dashboard (D1):** the optional Streamlit review surface is a major UI change and
+> requires a `flow-prototype` approval pass before a production build (§13). It is
+> intentionally **not** built; the spreadsheet/CLI + text digest are the approved surface.
+
 ## Tests
 ```bash
 python3 -m pytest -q        # 40 tests: invariants I2/I4/I5/I6/I7, dedup, health, gates

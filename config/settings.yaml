@@ -24,4 +24,12 @@ health:
 status:
   stale_after_days: 21   # F8 STALE suggestion threshold
 
+reminders:               # F9 per-state cadence (days)
+  followup_days: 7       # SUBMITTED / ACKNOWLEDGED / SCREENING silence
+  gate2_days: 3          # DRAFTED awaiting Gate 2
+  submit_days: 3         # PREFILLED awaiting the Candidate's submit
+
+digest:
+  window_days: 7         # F9 weekly digest activity window
+
 db_path: "data/app.db"
