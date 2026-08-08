@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
 import { CTAButton } from "@/components/CTA";
+import { CalEmbed } from "@/components/CalEmbed";
 import { Eyebrow } from "@/components/ui";
 import { EXPECT, CONTACT, BOOKING_URL, BOOKING_CONFIGURED } from "@/lib/content";
+
+// Public Cal.com booking link, e.g. "solvantlabs/intro" (no API key needed).
+const CAL_LINK = process.env.NEXT_PUBLIC_CAL_LINK;
 
 export const metadata: Metadata = {
   title: "Contact | Solvant Labs",
@@ -44,25 +48,27 @@ export default function ContactPage() {
             </div>
           </div>
 
-          <div className="rounded-xl border border-trace bg-surface p-6">
-            <div className="rounded-[10px] border border-dashed border-trace bg-paper p-6 text-center">
-              <div className="mb-3.5 font-mono text-[11px] uppercase tracking-[0.1em] text-graphite">
-                {BOOKING_CONFIGURED ? "Book below" : "Cal.com embed · set NEXT_PUBLIC_BOOKING_URL"}
+          {CAL_LINK ? (
+            <CalEmbed calLink={CAL_LINK} />
+          ) : (
+            <div className="rounded-xl border border-trace bg-surface p-6">
+              <div className="rounded-[10px] border border-dashed border-trace bg-paper p-6 text-center">
+                <div className="mb-3.5 font-mono text-[11px] uppercase tracking-[0.1em] text-graphite">
+                  {BOOKING_CONFIGURED ? "Book below" : "Cal.com embed · set NEXT_PUBLIC_CAL_LINK"}
+                </div>
+                <div className="mb-1 font-display text-[20px] font-bold">Pick a time</div>
+                <p className="mb-4 text-[14px] text-graphite">
+                  {BOOKING_CONFIGURED
+                    ? "Opens the scheduler in a new tab."
+                    : "Add your Cal.com link and this becomes a live inline scheduler."}
+                </p>
+                <CTAButton full />
               </div>
-              <div className="mb-1 font-display text-[20px] font-bold">Pick a time</div>
-              <p className="mb-4 text-[14px] text-graphite">
-                {BOOKING_CONFIGURED
-                  ? "Opens the scheduler in a new tab."
-                  : "Add your Cal.com link and this becomes a live scheduler."}
-              </p>
-              <CTAButton full />
+              {BOOKING_CONFIGURED ? (
+                <p className="mt-3 text-center font-mono text-[11px] text-graphite">{BOOKING_URL}</p>
+              ) : null}
             </div>
-            {BOOKING_CONFIGURED ? (
-              <p className="mt-3 text-center font-mono text-[11px] text-graphite">
-                {BOOKING_URL}
-              </p>
-            ) : null}
-          </div>
+          )}
         </div>
       </section>
     </>

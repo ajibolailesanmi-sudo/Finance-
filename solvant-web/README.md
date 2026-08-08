@@ -24,6 +24,7 @@ Fonts (Space Grotesk / Inter / IBM Plex Mono) are self-hosted at build time via 
 |---------------------------|----------|---------|
 | `ANTHROPIC_API_KEY`       | for chat | Server-side key for the Ask Solvant widget. **Never exposed to the browser.** Without it, the widget shows "Chat is offline. Book a call instead:" and the site works normally. |
 | `NEXT_PUBLIC_BOOKING_URL` | yes      | Your Cal.com link, used by every "Book a 15-minute intro call" CTA. Until set, CTAs show a reminder toast instead of a dead link. |
+| `NEXT_PUBLIC_CAL_LINK`    | optional | Your **public** Cal.com link (e.g. `solvantlabs/intro`) — **no API key needed**. When set, the Contact page renders an inline Cal.com scheduler; otherwise it shows the booking button. |
 
 ## Deploy (Vercel + Hostinger DNS)
 
