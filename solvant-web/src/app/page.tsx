@@ -43,17 +43,23 @@ export default function Home() {
             Where the hours and leads leak out
           </span>
           <div className="mt-6 grid grid-cols-1 border-t border-white/15 md:grid-cols-3">
-            {PROBLEMS.map((p, i) => (
-              <div
-                key={p.k}
-                className={`border-white/15 py-6 pr-0 font-display text-[clamp(16px,1.7vw,19px)] font-medium leading-[1.4] md:pr-6 ${
-                  i < PROBLEMS.length - 1 ? "border-b md:border-b-0 md:border-r" : ""
-                }`}
-              >
-                <span className="mb-3 block font-mono text-[11px] uppercase tracking-[0.14em] text-signal">{p.k}</span>
-                {p.t}
-              </div>
-            ))}
+            {PROBLEMS.map((p, i) => {
+              const pad =
+                i === 0 ? "md:pr-7" : i === PROBLEMS.length - 1 ? "md:pl-7" : "md:px-7";
+              return (
+                <div
+                  key={p.k}
+                  className={`border-white/15 py-6 font-display text-[clamp(16px,1.7vw,19px)] font-medium leading-[1.4] ${pad} ${
+                    i < PROBLEMS.length - 1 ? "border-b md:border-b-0 md:border-r" : ""
+                  }`}
+                >
+                  <span className="mb-3 block font-mono text-[11px] uppercase tracking-[0.14em] text-signal">
+                    {p.k}
+                  </span>
+                  {p.t}
+                </div>
+              );
+            })}
           </div>
         </Reveal>
       </section>
