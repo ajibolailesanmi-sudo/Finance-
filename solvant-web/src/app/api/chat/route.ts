@@ -6,7 +6,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 // ---- Config (edit here) ----------------------------------------------------
-const MODEL = "claude-opus-5"; // Fast FAQ bot; swap to "claude-haiku-4-5" to cut cost.
+const MODEL = "claude-haiku-4-5"; // Fast, low-cost FAQ bot. (Opus/Sonnet also work — see note in the create() call.)
 const MAX_TOKENS = 600; // Deliberately short — the widget is meant to be concise.
 const MAX_MESSAGES = 24; // Cap history length sent to the API.
 const MAX_CHARS = 2000; // Cap per-message length.
@@ -69,7 +69,9 @@ export async function POST(req: NextRequest) {
     const resp = await client.messages.create({
       model: MODEL,
       max_tokens: MAX_TOKENS,
-      thinking: { type: "disabled" }, // no tools + concise Q&A → skip thinking for latency
+      // Haiku 4.5 doesn't use extended thinking by default, so we omit `thinking`
+      // for a snappy reply. If you switch MODEL to an Opus/Sonnet 5-tier model
+      // (which think by default), add `thinking: { type: "disabled" }` here to keep it fast.
       system: SYSTEM,
       messages,
     });
