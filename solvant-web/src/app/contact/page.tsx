@@ -2,10 +2,7 @@ import type { Metadata } from "next";
 import { CTAButton } from "@/components/CTA";
 import { CalEmbed } from "@/components/CalEmbed";
 import { Eyebrow } from "@/components/ui";
-import { EXPECT, CONTACT, BOOKING_URL, BOOKING_CONFIGURED } from "@/lib/content";
-
-// Public Cal.com booking link, e.g. "solvantlabs/intro" (no API key needed).
-const CAL_LINK = process.env.NEXT_PUBLIC_CAL_LINK;
+import { EXPECT, CONTACT, BOOKING_URL, BOOKING_CONFIGURED, CAL_LINK } from "@/lib/content";
 
 export const metadata: Metadata = {
   title: "Contact | Solvant Labs",

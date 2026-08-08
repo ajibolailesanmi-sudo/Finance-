@@ -4,12 +4,15 @@
 // Search this file for "[FILL" to find everything the founder must supply.
 // ============================================================================
 
-/** The one booking URL used by every CTA (brief §3). Set NEXT_PUBLIC_BOOKING_URL in the env. */
+/** The one booking URL used by every CTA (brief §3). Override with NEXT_PUBLIC_BOOKING_URL. */
 export const BOOKING_URL =
-  process.env.NEXT_PUBLIC_BOOKING_URL || "[FILL: Cal.com booking URL]";
+  process.env.NEXT_PUBLIC_BOOKING_URL || "https://cal.com/ajibola-ilesanmi-q1jb1t/15min";
 
 /** True when a real booking URL is configured (used to avoid shipping a dead link). */
 export const BOOKING_CONFIGURED = !BOOKING_URL.startsWith("[FILL");
+
+/** Public Cal.com link slug for the inline scheduler (no API key needed). Override with NEXT_PUBLIC_CAL_LINK. */
+export const CAL_LINK = process.env.NEXT_PUBLIC_CAL_LINK || "ajibola-ilesanmi-q1jb1t/15min";
 
 export const CTA_LABEL = "Book a 15-minute intro call";
 
