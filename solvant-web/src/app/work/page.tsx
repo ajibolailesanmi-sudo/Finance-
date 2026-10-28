@@ -6,7 +6,7 @@ import { CASES, APP } from "@/lib/content";
 export const metadata: Metadata = {
   title: "Work | Solvant Labs",
   description:
-    "Client automation builds from Solvant Labs — the problem, what we built, the stack, and the outcome, with client names withheld.",
+    "Automation and AI-agent builds from Solvant Labs — the problem, what we built, the stack, and the evidence, with public code on GitHub.",
 };
 
 function Fill({ children }: { children: React.ReactNode }) {
@@ -26,17 +26,31 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
   );
 }
 
+function Out({ href, children }: { href: string; children: React.ReactNode }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="font-mono text-[13px] text-signal after:content-['_↗'] hover:text-signal-ink"
+    >
+      {children}
+    </a>
+  );
+}
+
 export default function WorkPage() {
   return (
     <>
       <section className="paper-grid py-[clamp(46px,6vw,80px)] pb-[clamp(30px,4vw,44px)]">
         <div className="mx-auto max-w-wrap px-6">
           <Eyebrow>Selected work</Eyebrow>
-          <h1 className="my-4 max-w-[18ch] text-[clamp(30px,4.6vw,48px)] leading-[1.06]">
-            Client builds we can walk you through, end to end.
+          <h1 className="my-4 max-w-[20ch] text-[clamp(30px,4.6vw,48px)] leading-[1.06]">
+            Builds we made in-house — open on GitHub.
           </h1>
-          <p className="max-w-[56ch] text-[clamp(16px,1.6vw,19px)] text-graphite">
-            These are real client engagements. We keep client names confidential — but we can show you exactly what we built, the stack, and the outcome.
+          <p className="max-w-[58ch] text-[clamp(16px,1.6vw,19px)] text-graphite">
+            Automations and AI agents we built at Solvant Labs to prove out common small-business
+            workflows. The code is public — click through and see exactly how each one works.
           </p>
         </div>
       </section>
@@ -57,11 +71,17 @@ export default function WorkPage() {
                   <p className="text-graphite">{c.built}</p>
                 </Row>
                 <Row label="Stack">
-                  <Fill>{c.stack}</Fill>
+                  <p className="text-graphite">{c.stack}</p>
                 </Row>
-                <Row label="Outcome">
-                  <Fill>{c.outcome}</Fill>
-                </Row>
+                {c.evidence ? (
+                  <Row label="Evidence">
+                    <p className="text-graphite">{c.evidence}</p>
+                  </Row>
+                ) : null}
+                <div className="mt-auto flex flex-wrap gap-4 pt-1">
+                  <Out href={c.repo}>View code</Out>
+                  {c.demo ? <Out href={c.demo}>{c.demoLabel || "Live demo"}</Out> : null}
+                </div>
               </div>
             ))}
 
@@ -82,16 +102,9 @@ export default function WorkPage() {
               <Row label="Stack">
                 <Fill>{APP.stack}</Fill>
               </Row>
-              <Row label="Live at">
-                <a
-                  href={APP.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-mono text-[13px] text-signal after:content-['_→'] hover:text-signal-ink"
-                >
-                  {APP.urlLabel}
-                </a>
-              </Row>
+              <div className="mt-auto flex flex-wrap gap-4 pt-1">
+                <Out href={APP.url}>{APP.urlLabel}</Out>
+              </div>
             </div>
           </div>
 

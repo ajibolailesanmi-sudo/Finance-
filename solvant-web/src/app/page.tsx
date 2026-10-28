@@ -120,8 +120,8 @@ export default function Home() {
       {/* WORK PREVIEW */}
       <section aria-label="Work" className="py-[clamp(52px,7vw,96px)]">
         <div className="mx-auto max-w-wrap px-6">
-          <SectionHead eyebrow="Selected work" title="Client builds we can walk you through, end to end." />
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+          <SectionHead eyebrow="Selected work" title="Automations and agents we've built — and open-sourced." />
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
             {CASES.map((c) => (
               <Reveal key={c.title} className="flex flex-col gap-3.5 rounded-[10px] border border-trace bg-surface p-7">
                 <span className="self-start rounded border border-trace bg-paper px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.12em] text-graphite">

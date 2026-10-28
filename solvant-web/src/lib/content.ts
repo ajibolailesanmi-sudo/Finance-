@@ -126,23 +126,46 @@ export const RIGOR = [
   { m: "Monitored", t: "Watched after launch", p: "Integrations change. Monitoring catches problems before you do, and the Care Plan fixes them." },
 ];
 
-// Work = real client engagements, names withheld. (Founder confirmed.)
+// Work = in-house Solvant Labs demo builds, public on GitHub.
 export const CASES = [
   {
-    tag: "Client engagement · name withheld",
-    title: "Regulatory Intelligence Agent",
-    problem: "Staying current on federal regulatory changes means manually scanning dense government publications.",
-    built: "An autonomous agent that monitors the Federal Register API daily, filters for relevant rules, and delivers plain-language summaries.",
-    stack: "[FILL: exact stack]",
-    outcome: "[FILL: e.g., review time cut from X hours/week to Y minutes]",
+    tag: "Built at Solvant Labs",
+    title: "Customer-Support RAG Chatbot",
+    problem:
+      "Small teams can't answer support around the clock, and the same questions keep coming in across the website and WhatsApp.",
+    built:
+      "A support agent on n8n that answers from your own help articles (RAG), on website chat and WhatsApp, with human handoff to Slack and email and a Google Sheets log.",
+    stack: "n8n · Supabase (pgvector) · Gemini · WhatsApp · Slack · Google Sheets",
+    evidence: "Validated against 57 scripted test conversations.",
+    repo: "https://github.com/ajibolailesanmi-sudo/n8n-rag-support-chatbot",
+    demo: "https://ajibolailesanmi-sudo.github.io/n8n-rag-support-chatbot/",
+    demoLabel: "Live demo",
   },
   {
-    tag: "Client engagement · name withheld",
-    title: "Job Application Copilot (human-in-the-loop)",
-    problem: "High-volume job applications force a choice between speed and quality.",
-    built: "An agent that discovers openings, scores fit, tailors materials, and pre-fills applications, with a human approving every submission.",
-    stack: "[FILL: exact stack]",
-    outcome: "[FILL: metric]",
+    tag: "Built at Solvant Labs",
+    title: "Lead Routing Automation",
+    problem:
+      "Inbound leads pile up, get duplicated, and reach the wrong rep — so follow-up is slow and uneven.",
+    built:
+      "An n8n workflow that captures leads, dedupes them, scores them, and round-robins each to the right rep, syncing HubSpot and pinging Slack.",
+    stack: "n8n · PostgreSQL · HubSpot · Slack · Docker",
+    evidence: "",
+    repo: "https://github.com/ajibolailesanmi-sudo/n8n-lead-router",
+    demo: "",
+    demoLabel: "",
+  },
+  {
+    tag: "Built at Solvant Labs",
+    title: "Email Triage Agent",
+    problem:
+      "A full inbox buries the few emails that actually need action, and triaging by hand eats the morning.",
+    built:
+      "An agent on Make that classifies, labels, and routes incoming email and drafts replies for approval — a human signs off on every send.",
+    stack: "Make · Gemini · Gmail · Slack",
+    evidence: "Measured on a labelled evaluation set.",
+    repo: "https://github.com/ajibolailesanmi-sudo/email-triage-agent",
+    demo: "",
+    demoLabel: "",
   },
 ];
 
