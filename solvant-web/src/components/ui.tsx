@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Reveal } from "./Reveal";
 
 export function Eyebrow({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return (
@@ -20,11 +21,11 @@ export function SectionHead({
   lede?: string;
 }) {
   return (
-    <div className="reveal mb-11 max-w-[62ch]">
+    <Reveal className="mb-11 max-w-[62ch]">
       <Eyebrow>{eyebrow}</Eyebrow>
       <h2 className="mt-3.5 text-[clamp(24px,3.4vw,36px)] leading-[1.1]">{title}</h2>
       {lede ? <p className="mt-3.5 text-[18px] text-graphite">{lede}</p> : null}
-    </div>
+    </Reveal>
   );
 }
 

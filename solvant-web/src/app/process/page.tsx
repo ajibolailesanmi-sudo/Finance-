@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { CTAButton } from "@/components/CTA";
+import { Faq } from "@/components/Faq";
 import { Eyebrow, SectionHead, Hr } from "@/components/ui";
 import { STEPS, RIGOR, FAQ } from "@/lib/content";
 
@@ -67,17 +68,7 @@ export default function ProcessPage() {
       <section className="py-[clamp(52px,7vw,96px)]">
         <div className="mx-auto max-w-wrap px-6">
           <SectionHead eyebrow="FAQ" title="The questions we usually get." />
-          <div className="max-w-[760px]">
-            {FAQ.map((f) => (
-              <details key={f.q} className="border-b border-trace py-1.5">
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-4 font-display text-[18px] font-medium marker:hidden">
-                  {f.q}
-                  <span className="font-mono text-[22px] text-signal transition group-open:hidden">+</span>
-                </summary>
-                <p className="max-w-[66ch] pb-4 text-[15px] text-graphite">{f.a}</p>
-              </details>
-            ))}
-          </div>
+          <Faq items={FAQ} />
           <div className="mt-8 flex justify-center">
             <CTAButton />
           </div>

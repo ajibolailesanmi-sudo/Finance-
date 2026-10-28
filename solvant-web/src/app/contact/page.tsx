@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { CTAButton } from "@/components/CTA";
 import { CalEmbed } from "@/components/CalEmbed";
-import { Eyebrow } from "@/components/ui";
-import { EXPECT, CONTACT, BOOKING_URL, BOOKING_CONFIGURED, CAL_LINK } from "@/lib/content";
+import { Faq } from "@/components/Faq";
+import { Eyebrow, SectionHead, Hr } from "@/components/ui";
+import { EXPECT, CONTACT, BOOKING_URL, BOOKING_CONFIGURED, CAL_LINK, FAQ } from "@/lib/content";
 
 export const metadata: Metadata = {
   title: "Contact | Solvant Labs",
@@ -66,6 +67,19 @@ export default function ContactPage() {
               ) : null}
             </div>
           )}
+        </div>
+      </section>
+
+      <Hr />
+
+      <section className="py-[clamp(52px,7vw,96px)]">
+        <div className="mx-auto max-w-wrap px-6">
+          <SectionHead
+            eyebrow="FAQ"
+            title="Frequently asked questions"
+            lede="The things people usually want to know before booking. Still unsure? Bring it to the call."
+          />
+          <Faq items={FAQ} />
         </div>
       </section>
     </>
