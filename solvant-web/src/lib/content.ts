@@ -22,11 +22,25 @@ export const CONTACT = {
 };
 
 export const HERO = {
+  kicker: "AI Agents. Automation. Integrations.",
   eyebrow: "AI automation studio · US small business",
   headline: "Your business, running while you're not watching it.",
+  // Rotating line typed out under the headline (signal-blue), the way wesucceed
+  // types its orange subhead. Every phrase is something we actually build.
+  rotating: [
+    "Leads answered in seconds.",
+    "Invoices read, posted, filed.",
+    "Reception that works after hours.",
+    "The busywork, handled.",
+  ],
   subhead:
     "Solvant Labs builds AI agents and automations for small businesses: answering leads in seconds, chasing paperwork, and keeping your operations moving after hours.",
   secondary: "See what we build",
+  // Honest credibility badge (in place of a partner logo we haven't earned).
+  badge: {
+    title: "Engineering-grade automation",
+    sub: "8+ yrs regulated QA-ops · open-source on GitHub",
+  },
 };
 
 // Rotating hero schematic — proves ANY workflow, not just leads. Node 2 is always "Agent".

@@ -26,7 +26,16 @@ export function AskSolvant() {
   const [input, setInput] = useState("");
   const [pending, setPending] = useState(false);
   const [offline, setOffline] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const logRef = useRef<HTMLDivElement>(null);
+
+  // On mobile, lift the button above the sticky "Book a call" bar once it appears.
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 560);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   useEffect(() => {
     if (open && messages.length === 0) {
@@ -86,7 +95,7 @@ export function AskSolvant() {
         type="button"
         aria-label="Open Ask Solvant chat"
         onClick={() => setOpen(true)}
-        className="fixed bottom-[22px] right-[22px] z-[60] flex items-center gap-2.5 rounded-[30px] bg-signal px-4 py-3 pl-[15px] text-[14px] font-semibold text-white shadow-[0_10px_30px_rgba(31,111,235,0.34)] transition hover:-translate-y-0.5"
+        className={`fixed ${scrolled ? "bottom-[88px]" : "bottom-[22px]"} right-[22px] z-[60] flex items-center gap-2.5 rounded-[30px] bg-signal px-4 py-3 pl-[15px] text-[14px] font-semibold text-white shadow-[0_10px_30px_rgba(31,111,235,0.34)] transition-all duration-300 hover:-translate-y-0.5 md:bottom-[22px]`}
       >
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path d="M4 5h16v11H8l-4 3z" stroke="#fff" strokeWidth="1.7" strokeLinejoin="round" />
