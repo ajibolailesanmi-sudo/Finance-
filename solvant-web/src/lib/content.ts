@@ -18,7 +18,7 @@ export const CTA_LABEL = "Book a 15-minute intro call";
 
 export const CONTACT = {
   email: "info@solvantlabs.com",
-  address: "[FILL: business mailing address]",
+  address: "57 Castings Ct, Ewing, NJ 08628",
 };
 
 /** True once a real mailing address is set — until then the address line is
