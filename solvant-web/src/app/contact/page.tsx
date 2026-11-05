@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { CTAButton } from "@/components/CTA";
 import { CalEmbed } from "@/components/CalEmbed";
 import { Faq } from "@/components/Faq";
+import { PageHero } from "@/components/PageHero";
 import { Eyebrow, SectionHead, Hr } from "@/components/ui";
 import { EXPECT, CONTACT, BOOKING_URL, BOOKING_CONFIGURED, CAL_LINK, FAQ } from "@/lib/content";
 
@@ -14,15 +15,16 @@ export const metadata: Metadata = {
 export default function ContactPage() {
   return (
     <>
-      <section className="paper-grid py-[clamp(46px,6vw,80px)] pb-[clamp(30px,4vw,44px)]">
-        <div className="mx-auto max-w-wrap px-6">
-          <Eyebrow>Contact</Eyebrow>
-          <h1 className="my-4 max-w-[18ch] text-[clamp(30px,4.6vw,48px)] leading-[1.06]">Book a 15-minute intro call.</h1>
-          <p className="max-w-[56ch] text-[clamp(16px,1.6vw,19px)] text-graphite">
-            No form to fill out — just grab a time. You&apos;ll leave with at least one automation idea you can use, whether or not we work together.
-          </p>
-        </div>
-      </section>
+      <PageHero
+        kicker="No form. Just grab a time."
+        title="Book a 15-minute intro call."
+        rotating={[
+          "15 minutes, on your schedule.",
+          "One idea you can actually use.",
+          "No pitch deck.",
+        ]}
+        lede="No form to fill out — just grab a time. You'll leave with at least one automation idea you can use, whether or not we work together."
+      />
 
       <section className="py-[clamp(52px,7vw,96px)]">
         <div className="mx-auto grid max-w-wrap grid-cols-1 items-start gap-10 px-6 md:grid-cols-[1.05fr_0.95fr]">

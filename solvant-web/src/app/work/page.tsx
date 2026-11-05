@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { CTAButton } from "@/components/CTA";
-import { Eyebrow } from "@/components/ui";
+import { PageHero } from "@/components/PageHero";
 import { CASES, APP } from "@/lib/content";
 
 export const metadata: Metadata = {
@@ -42,18 +42,16 @@ function Out({ href, children }: { href: string; children: React.ReactNode }) {
 export default function WorkPage() {
   return (
     <>
-      <section className="paper-grid py-[clamp(46px,6vw,80px)] pb-[clamp(30px,4vw,44px)]">
-        <div className="mx-auto max-w-wrap px-6">
-          <Eyebrow>Selected work</Eyebrow>
-          <h1 className="my-4 max-w-[20ch] text-[clamp(30px,4.6vw,48px)] leading-[1.06]">
-            Builds we made in-house — open on GitHub.
-          </h1>
-          <p className="max-w-[58ch] text-[clamp(16px,1.6vw,19px)] text-graphite">
-            Automations and AI agents we built at Solvant Labs to prove out common small-business
-            workflows. The code is public — click through and see exactly how each one works.
-          </p>
-        </div>
-      </section>
+      <PageHero
+        kicker="Built in-house. Open on GitHub."
+        title="Builds we made in-house — open on GitHub."
+        rotating={[
+          "A RAG support chatbot.",
+          "Lead routing that dedupes and scores.",
+          "An email triage agent.",
+        ]}
+        lede="Automations and AI agents we built at Solvant Labs to prove out common small-business workflows. The code is public — click through and see exactly how each one works."
+      />
 
       <section className="py-[clamp(52px,7vw,96px)]">
         <div className="mx-auto max-w-wrap px-6">

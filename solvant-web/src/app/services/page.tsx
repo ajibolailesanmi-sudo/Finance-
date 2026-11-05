@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { CTAButton } from "@/components/CTA";
-import { Eyebrow } from "@/components/ui";
+import { PageHero } from "@/components/PageHero";
 import { SERVICES, SERVICES_NOTE } from "@/lib/content";
 
 export const metadata: Metadata = {
@@ -12,17 +12,16 @@ export const metadata: Metadata = {
 export default function ServicesPage() {
   return (
     <>
-      <section className="paper-grid py-[clamp(46px,6vw,80px)] pb-[clamp(30px,4vw,44px)]">
-        <div className="mx-auto max-w-wrap px-6">
-          <Eyebrow>Services</Eyebrow>
-          <h1 className="my-4 max-w-[18ch] text-[clamp(30px,4.6vw,48px)] leading-[1.06]">
-            Fixed-price automation, built like it matters.
-          </h1>
-          <p className="max-w-[56ch] text-[clamp(16px,1.6vw,19px)] text-graphite">
-            No hourly surprises and no open-ended retainers to start. Pick where you want to begin — we&apos;ll tell you honestly on the call which one fits.
-          </p>
-        </div>
-      </section>
+      <PageHero
+        kicker="Fixed price. Documented. Yours."
+        title="Fixed-price automation, built like it matters."
+        rotating={[
+          "One workflow, live in a week.",
+          "A multi-step agent for your ops.",
+          "We keep it running.",
+        ]}
+        lede="No hourly surprises and no open-ended retainers to start. Pick where you want to begin — we'll tell you honestly on the call which one fits."
+      />
 
       <section className="py-[clamp(52px,7vw,96px)]">
         <div className="mx-auto max-w-wrap px-6">
