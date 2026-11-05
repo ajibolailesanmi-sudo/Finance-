@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { CTAButton } from "@/components/CTA";
 import { Faq } from "@/components/Faq";
-import { Eyebrow, SectionHead, Hr } from "@/components/ui";
+import { PageHero } from "@/components/PageHero";
+import { SectionHead, Hr } from "@/components/ui";
 import { STEPS, RIGOR, FAQ } from "@/lib/content";
 
 export const metadata: Metadata = {
@@ -13,17 +14,18 @@ export const metadata: Metadata = {
 export default function ProcessPage() {
   return (
     <>
-      <section className="paper-grid py-[clamp(46px,6vw,80px)] pb-[clamp(30px,4vw,44px)]">
-        <div className="mx-auto max-w-wrap px-6">
-          <Eyebrow>Process</Eyebrow>
-          <h1 className="my-4 max-w-[18ch] text-[clamp(30px,4.6vw,48px)] leading-[1.06]">
-            Documented, tested, monitored — not duct-taped demos.
-          </h1>
-          <p className="max-w-[56ch] text-[clamp(16px,1.6vw,19px)] text-graphite">
-            Solvant Labs brings 8+ years of regulated quality-operations discipline (pharma and cell therapy) to automation, where &ldquo;it usually works&rdquo; is not an acceptable standard.
-          </p>
-        </div>
-      </section>
+      <PageHero
+        kicker="Map. Build. Run."
+        title="Documented, tested, monitored — not duct-taped demos."
+        rotating={[
+          "Mapped in a 15-minute call.",
+          "Built and tested before go-live.",
+          "Monitored after launch.",
+        ]}
+        lede={
+          "Solvant Labs brings 8+ years of regulated quality-operations discipline (pharma and cell therapy) to automation, where “it usually works” is not an acceptable standard."
+        }
+      />
 
       <section className="py-[clamp(52px,7vw,96px)]">
         <div className="mx-auto max-w-wrap px-6">
