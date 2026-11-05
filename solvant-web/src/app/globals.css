@@ -112,6 +112,28 @@ summary:focus-visible {
   .typing i { animation: none !important; }
 }
 
+/* Hero typewriter caret (Typewriter.tsx) */
+.tw-caret {
+  display: inline-block;
+  width: 3px;
+  height: 1em;
+  margin-left: 3px;
+  vertical-align: text-bottom;
+  background: var(--signal);
+  animation: tw-blink 1s step-end infinite;
+}
+.tw-caret-static {
+  animation: none;
+  opacity: 0.5;
+}
+@keyframes tw-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tw-caret { animation: none; opacity: 0.5; }
+}
+
 /* Chat typing indicator */
 @keyframes blink {
   0%, 60%, 100% { opacity: 0.25; transform: translateY(0); }

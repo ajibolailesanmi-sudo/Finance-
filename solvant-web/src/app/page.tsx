@@ -1,7 +1,9 @@
+import Link from "next/link";
 import { Schematic } from "@/components/Schematic";
 import { Reveal } from "@/components/Reveal";
 import { CTAButton } from "@/components/CTA";
-import { Eyebrow, SectionHead, ArrowLink, Hr } from "@/components/ui";
+import { Typewriter } from "@/components/Typewriter";
+import { SectionHead, ArrowLink, Hr } from "@/components/ui";
 import {
   HERO,
   PROBLEMS,
@@ -17,19 +19,48 @@ export default function Home() {
     <>
       {/* HERO */}
       <section className="paper-grid relative overflow-hidden" aria-label="Intro">
-        <div className="mx-auto grid max-w-wrap grid-cols-1 items-center gap-9 px-6 py-[clamp(44px,6vw,90px)] md:grid-cols-[1.02fr_0.98fr] md:gap-14">
+        <div className="mx-auto grid max-w-wrap grid-cols-1 items-center gap-10 px-6 py-[clamp(48px,7vw,104px)] md:grid-cols-[1.05fr_0.95fr] md:gap-14">
           <div>
-            <Eyebrow>{HERO.eyebrow}</Eyebrow>
-            <h1 className="mb-5 mt-4 max-w-[15ch] text-[clamp(32px,5.2vw,56px)] leading-[1.04]">{HERO.headline}</h1>
-            <p className="mb-7 max-w-[52ch] text-[clamp(16px,1.6vw,19px)] text-graphite">{HERO.subhead}</p>
-            <div className="flex flex-wrap items-center gap-5">
+            <div className="mb-5 font-mono text-[12px] font-medium uppercase tracking-[0.2em] text-graphite">
+              {HERO.kicker}
+            </div>
+            <h1 className="max-w-[16ch] text-[clamp(34px,6.1vw,64px)] font-bold leading-[1.02] tracking-[-0.025em]">
+              {HERO.headline}
+            </h1>
+            <div className="mt-4 min-h-[2.5em] font-display text-[clamp(20px,3.2vw,30px)] font-bold leading-[1.15] text-signal sm:min-h-[1.3em]">
+              <Typewriter phrases={HERO.rotating} />
+            </div>
+            <p className="mt-5 max-w-[52ch] text-[clamp(16px,1.6vw,19px)] text-graphite">{HERO.subhead}</p>
+            <div className="mt-8 flex flex-wrap items-center gap-6">
               <CTAButton />
-              <a
-                href="#services-preview"
-                className="border-b border-trace pb-0.5 text-[15px] text-graphite after:content-['_↓'] hover:border-signal hover:text-signal"
+              <Link
+                href="/work"
+                className="group inline-flex items-center gap-3 text-[15px] font-semibold text-ink"
               >
+                <span className="flex h-11 w-11 items-center justify-center rounded-full border border-trace bg-surface text-signal transition group-hover:-translate-y-0.5 group-hover:border-signal group-hover:shadow-[0_8px_22px_rgba(31,111,235,0.18)]">
+                  <svg width="13" height="13" viewBox="0 0 14 14" aria-hidden="true">
+                    <path d="M3 2 L11.5 7 L3 12 Z" fill="currentColor" />
+                  </svg>
+                </span>
                 {HERO.secondary}
-              </a>
+              </Link>
+            </div>
+            <div className="mt-9 inline-flex items-center gap-3.5 rounded-[11px] border border-trace bg-surface px-4 py-3 shadow-[0_1px_0_rgba(16,24,32,0.04)]">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[8px] bg-signal/10 text-signal">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path
+                    d="M12 2.5 L20 6 V11 C20 16 16.6 19.5 12 21.5 C7.4 19.5 4 16 4 11 V6 Z"
+                    stroke="currentColor"
+                    strokeWidth="1.7"
+                    strokeLinejoin="round"
+                  />
+                  <path d="M8.5 11.8 L11 14.2 L15.6 9.3" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </span>
+              <div className="leading-tight">
+                <div className="font-display text-[14.5px] font-bold text-ink">{HERO.badge.title}</div>
+                <div className="text-[12.5px] text-graphite">{HERO.badge.sub}</div>
+              </div>
             </div>
           </div>
           <Schematic />

@@ -4,6 +4,7 @@ import { display, body, mono } from "@/lib/fonts";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { AskSolvant } from "@/components/AskSolvant";
+import { StickyCTA } from "@/components/StickyCTA";
 import "./globals.css";
 
 const SITE_URL = "https://solvantlabs.com";
@@ -32,6 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <main>{children}</main>
         <Footer />
         <AskSolvant />
+        <StickyCTA />
         <Analytics />
       </body>
     </html>
