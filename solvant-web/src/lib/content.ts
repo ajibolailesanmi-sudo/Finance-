@@ -17,9 +17,14 @@ export const CAL_LINK = process.env.NEXT_PUBLIC_CAL_LINK || "ajibola-ilesanmi-q1
 export const CTA_LABEL = "Book a 15-minute intro call";
 
 export const CONTACT = {
-  email: "[FILL: contact email]",
+  email: "info@solvantlabs.com",
   address: "[FILL: business mailing address]",
 };
+
+/** True once a real mailing address is set — until then the address line is
+ * hidden rather than leaking a placeholder to the live site. (CAN-SPAM needs a
+ * physical postal address before any cold-email campaign.) */
+export const ADDRESS_SET = !CONTACT.address.startsWith("[FILL");
 
 export const HERO = {
   kicker: "AI Agents. Automation. Integrations.",
@@ -186,10 +191,12 @@ export const CASES = [
 // Live web app to showcase (founder-supplied details).
 export const APP = {
   tag: "Live web app",
-  name: "[FILL: app name]",
-  problem: "[FILL: what problem it solves]",
-  built: "[FILL: what the app does]",
-  stack: "[FILL: stack]",
+  name: "HoatPen — Client Journey Tracker",
+  problem:
+    "A consulting service needed to track every client through a multi-stage pipeline and give each client a window into their own progress — without one client ever seeing another's data.",
+  built:
+    "A team app and client portal in one Next.js codebase: create a case, advance it stage by stage, with role-separated access enforced at the database, a client status view, and an append-only activity log.",
+  stack: "Next.js · Supabase (Postgres · Auth · RLS) · Resend · Vercel",
   url: "https://app.hoatpen.com",
   urlLabel: "app.hoatpen.com",
 };

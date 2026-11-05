@@ -21,7 +21,7 @@ export default function PrivacyPage() {
         <div className="mx-auto max-w-wrap px-6">
           <div className="max-w-[720px]">
             <div className="mb-5 font-mono text-[11px] tracking-[0.06em] text-graphite">
-              Solvant Labs · last updated [FILL: date]
+              Solvant Labs · last updated November 5, 2026
             </div>
             <p className="mb-2 text-[15px] text-graphite">
               Solvant Labs is an AI automation studio serving US small businesses. This policy explains what we collect when you visit this site and how to reach us about it.

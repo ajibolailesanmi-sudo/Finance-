@@ -4,7 +4,7 @@ import { CalEmbed } from "@/components/CalEmbed";
 import { Faq } from "@/components/Faq";
 import { PageHero } from "@/components/PageHero";
 import { Eyebrow, SectionHead, Hr } from "@/components/ui";
-import { EXPECT, CONTACT, BOOKING_URL, BOOKING_CONFIGURED, CAL_LINK, FAQ } from "@/lib/content";
+import { EXPECT, CONTACT, ADDRESS_SET, BOOKING_URL, BOOKING_CONFIGURED, CAL_LINK, FAQ } from "@/lib/content";
 
 export const metadata: Metadata = {
   title: "Contact | Solvant Labs",
@@ -40,11 +40,13 @@ export default function ContactPage() {
             </ul>
             <div className="mt-5 flex flex-col gap-2.5 text-[14.5px] text-graphite">
               <div>
-                <span className="font-mono text-[11px] uppercase tracking-[0.1em] text-graphite">Solvant Labs</span> · {CONTACT.address}
-              </div>
-              <div>
                 <span className="font-mono text-[11px] uppercase tracking-[0.1em] text-graphite">Email</span> · {CONTACT.email}
               </div>
+              {ADDRESS_SET ? (
+                <div>
+                  <span className="font-mono text-[11px] uppercase tracking-[0.1em] text-graphite">Solvant Labs</span> · {CONTACT.address}
+                </div>
+              ) : null}
             </div>
           </div>
 

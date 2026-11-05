@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CONTACT, CTA_LABEL, BOOKING_URL, BOOKING_CONFIGURED } from "@/lib/content";
+import { CONTACT, ADDRESS_SET, CTA_LABEL, BOOKING_URL, BOOKING_CONFIGURED } from "@/lib/content";
 
 export function Footer() {
   return (
@@ -44,7 +44,9 @@ export function Footer() {
               </Link>
             )}
             <span className="block py-1.5 text-[14px] text-graphite">{CONTACT.email}</span>
-            <span className="block py-1.5 text-[14px] text-graphite">Solvant Labs · {CONTACT.address}</span>
+            {ADDRESS_SET ? (
+              <span className="block py-1.5 text-[14px] text-graphite">Solvant Labs · {CONTACT.address}</span>
+            ) : null}
           </div>
         </div>
 

@@ -9,14 +9,6 @@ export const metadata: Metadata = {
     "Automation and AI-agent builds from Solvant Labs — the problem, what we built, the stack, and the evidence, with public code on GitHub.",
 };
 
-function Fill({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="inline-block rounded border border-dashed border-[#e3b34d] bg-[#fff6e6] px-1.5 py-0.5 font-mono text-[12.5px] text-[#8a5a00]">
-      {children}
-    </span>
-  );
-}
-
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="text-[14.5px] leading-[1.5]">
@@ -88,17 +80,15 @@ export default function WorkPage() {
               <span className="self-start rounded border border-signal px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.12em] text-signal">
                 {APP.tag}
               </span>
-              <h3 className="text-[20px]">
-                <Fill>{APP.name}</Fill>
-              </h3>
+              <h3 className="text-[20px]">{APP.name}</h3>
               <Row label="Problem">
-                <Fill>{APP.problem}</Fill>
+                <p className="text-graphite">{APP.problem}</p>
               </Row>
               <Row label="Built">
-                <Fill>{APP.built}</Fill>
+                <p className="text-graphite">{APP.built}</p>
               </Row>
               <Row label="Stack">
-                <Fill>{APP.stack}</Fill>
+                <p className="text-graphite">{APP.stack}</p>
               </Row>
               <div className="mt-auto flex flex-wrap gap-4 pt-1">
                 <Out href={APP.url}>{APP.urlLabel}</Out>
