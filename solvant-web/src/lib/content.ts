@@ -48,6 +48,30 @@ export const HERO = {
   },
 };
 
+// "The tools we build with" strip (wesucceed's logo-strip slot, honest version).
+// Plain wordmarks — the actual tools behind the builds on the Work page, no
+// borrowed brand logos.
+export const TOOLS_LABEL = "The tools we build with";
+export const TOOLS = [
+  "n8n",
+  "Make",
+  "Supabase",
+  "HubSpot",
+  "Slack",
+  "Google Workspace",
+  "Gemini",
+  "Claude",
+];
+
+// Honest "by the numbers" band — every figure is a real, checkable fact about
+// how we work, not an invented client/revenue count.
+export const STATS = [
+  { k: "1 week", v: "to your first automation live" },
+  { k: "from $500", v: "fixed price — no hourly surprises" },
+  { k: "30 days", v: "of post-launch fixes included" },
+  { k: "8+ yrs", v: "regulated QA-ops discipline" },
+];
+
 // Rotating hero schematic — proves ANY workflow, not just leads. Node 2 is always "Agent".
 export const FLOWS = [
   { a: ["new lead", "update", "send"], n: ["Lead in", "Agent", "CRM", "Reply sent"], c: "a lead answered in seconds — while you're doing something else" },

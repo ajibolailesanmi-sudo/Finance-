@@ -6,6 +6,9 @@ import { Typewriter } from "@/components/Typewriter";
 import { SectionHead, ArrowLink, Hr } from "@/components/ui";
 import {
   HERO,
+  TOOLS,
+  TOOLS_LABEL,
+  STATS,
   PROBLEMS,
   SERVICES,
   SERVICES_LEDE,
@@ -67,6 +70,22 @@ export default function Home() {
         </div>
       </section>
 
+      {/* TOOLS STRIP */}
+      <section aria-label="Tools we build with" className="border-y border-trace bg-surface">
+        <div className="mx-auto flex max-w-wrap flex-col items-center gap-5 px-6 py-7 md:flex-row md:justify-between md:gap-8">
+          <span className="whitespace-nowrap font-mono text-[11px] uppercase tracking-[0.16em] text-graphite">
+            {TOOLS_LABEL}
+          </span>
+          <div className="flex flex-wrap items-center justify-center gap-x-7 gap-y-3 md:justify-end">
+            {TOOLS.map((t) => (
+              <span key={t} className="font-display text-[15px] font-semibold text-graphite/75">
+                {t}
+              </span>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* PROBLEM STRIP */}
       <section className="bg-ink text-paper" aria-label="The problem">
         <Reveal className="mx-auto max-w-wrap px-6 py-[clamp(52px,7vw,96px)]">
@@ -93,6 +112,22 @@ export default function Home() {
             })}
           </div>
         </Reveal>
+      </section>
+
+      {/* STATS BAND */}
+      <section aria-label="By the numbers" className="border-b border-trace py-[clamp(44px,6vw,72px)]">
+        <div className="mx-auto max-w-wrap px-6">
+          <div className="grid grid-cols-2 gap-x-6 gap-y-9 md:grid-cols-4">
+            {STATS.map((s) => (
+              <Reveal key={s.v} className="border-l-2 border-signal pl-4">
+                <div className="font-display text-[clamp(28px,4vw,40px)] font-bold leading-none tracking-[-0.02em] text-ink">
+                  {s.k}
+                </div>
+                <div className="mt-2.5 text-[14px] leading-[1.4] text-graphite">{s.v}</div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
       </section>
 
       {/* SERVICES PREVIEW */}
