@@ -44,6 +44,45 @@ const WHY_ICONS = [
   </>,
 ];
 
+// Line icons for the "Who we build for" tiles (index-matched to AUDIENCES).
+const AUD_ICONS = [
+  // home & trade — house
+  <>
+    <path d="M4 11 L12 4.5 L20 11" />
+    <path d="M6.5 9.8 V19.5 H17.5 V9.8" />
+    <path d="M10 19.5 V14 H14 V19.5" />
+  </>,
+  // clinics & practices — heart-pulse
+  <>
+    <path d="M3 12 H7.5 L9.5 8 L12.5 16 L14.5 12 H21" />
+  </>,
+  // law & professional — briefcase
+  <>
+    <rect x="3.5" y="8" width="17" height="11.5" rx="1.5" />
+    <path d="M9 8 V6.2 A1 1 0 0 1 10 5.2 H14 A1 1 0 0 1 15 6.2 V8" />
+    <path d="M3.5 13 H20.5" />
+  </>,
+  // real estate — building
+  <>
+    <path d="M5 20 V6.5 L12.5 3.5 V20" />
+    <path d="M12.5 9.2 L19 11.7 V20" />
+    <path d="M3.5 20 H20.5" />
+    <path d="M8 9 H9.8 M8 12 H9.8 M8 15 H9.8" />
+  </>,
+  // agencies & studios — megaphone
+  <>
+    <path d="M4 10 V14 H7 L15 18 V6 L7 10 Z" />
+    <path d="M18 9.5 A3.2 3.2 0 0 1 18 14.5" />
+  </>,
+  // field & contracting — truck
+  <>
+    <path d="M3 8 H13.5 V16 H3 Z" />
+    <path d="M13.5 10.5 H17.5 L20.5 13.5 V16 H13.5 Z" />
+    <circle cx="7" cy="18" r="1.6" />
+    <circle cx="17" cy="18" r="1.6" />
+  </>,
+];
+
 export default function Home() {
   return (
     <>
@@ -216,8 +255,13 @@ export default function Home() {
         <div className="mx-auto max-w-wrap px-6">
           <SectionHead eyebrow="Who we build for" title="Small service businesses, mostly." lede={AUDIENCES_LEDE} />
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {AUDIENCES.map((a) => (
+            {AUDIENCES.map((a, i) => (
               <Reveal key={a.t} className="rounded-[10px] border border-trace bg-surface p-6">
+                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-[9px] bg-signal/10 text-signal">
+                  <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    {AUD_ICONS[i]}
+                  </svg>
+                </div>
                 <h3 className="text-[18px]">{a.t}</h3>
                 <p className="mt-2 text-[14px] leading-[1.5] text-graphite">{a.p}</p>
               </Reveal>
@@ -271,8 +315,32 @@ export default function Home() {
       </section>
 
       {/* FINAL CTA */}
-      <section className="bg-ink text-center text-paper" aria-label="Book a call">
-        <Reveal className="mx-auto max-w-wrap px-6 py-[clamp(52px,7vw,96px)]">
+      <section className="relative overflow-hidden bg-ink text-center text-paper" aria-label="Book a call">
+        <svg
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 h-full w-full opacity-[0.22]"
+          viewBox="0 0 1200 400"
+          preserveAspectRatio="xMidYMid slice"
+        >
+          <g fill="none" strokeWidth="1.5" stroke="#cb450f">
+            <path d="M-40 70 L180 150 L380 80 L620 190 L860 95 L1080 175 L1260 110" />
+          </g>
+          <g fill="none" strokeWidth="1" stroke="#ffffff" opacity="0.5">
+            <path d="M-40 300 L220 235 L430 320 L680 245 L920 320 L1160 255 L1260 300" />
+          </g>
+          <g fill="#cb450f">
+            <circle cx="180" cy="150" r="5" />
+            <circle cx="620" cy="190" r="5" />
+            <circle cx="1080" cy="175" r="5" />
+          </g>
+          <g fill="#ffffff" opacity="0.6">
+            <circle cx="380" cy="80" r="4" />
+            <circle cx="860" cy="95" r="4" />
+            <circle cx="430" cy="320" r="4" />
+            <circle cx="920" cy="320" r="4" />
+          </g>
+        </svg>
+        <Reveal className="relative z-10 mx-auto max-w-wrap px-6 py-[clamp(52px,7vw,96px)]">
           <h2 className="mx-auto mb-3.5 max-w-[22ch] text-[clamp(24px,3.4vw,34px)] text-white">{FINAL_CTA.headline}</h2>
           <p className="mx-auto mb-7 max-w-[46ch] text-[17px] text-[#b6c0c9]">{FINAL_CTA.sub}</p>
           <CTAButton className="!px-6 !py-4 !text-[16px]" />
