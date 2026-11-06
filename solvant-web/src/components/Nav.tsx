@@ -21,8 +21,8 @@ export function Nav() {
       <div className="mx-auto flex h-16 max-w-wrap items-center justify-between gap-5 px-6">
         <Link href="/" className="flex items-center gap-2.5 font-display text-[18px] font-bold text-ink">
           <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true">
-            <rect x="1.5" y="1.5" width="19" height="19" rx="4" fill="none" stroke="#1F6FEB" strokeWidth="1.6" />
-            <circle cx="7" cy="7" r="2" fill="#1F6FEB" />
+            <rect x="1.5" y="1.5" width="19" height="19" rx="4" fill="none" stroke="#cb450f" strokeWidth="1.6" />
+            <circle cx="7" cy="7" r="2" fill="#cb450f" />
             <circle cx="15" cy="15" r="2" fill="#101820" />
             <path d="M8.4 8.4 L13.6 13.6" stroke="#4A5560" strokeWidth="1.4" />
           </svg>

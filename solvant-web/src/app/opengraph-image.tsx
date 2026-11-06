@@ -25,7 +25,7 @@ export default function OGImage() {
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <div style={{ width: 40, height: 40, borderRadius: 8, border: "3px solid #1F6FEB" }} />
+          <div style={{ width: 40, height: 40, borderRadius: 8, border: "3px solid #cb450f" }} />
           <div style={{ fontSize: 30, fontWeight: 700, color: "#101820", letterSpacing: "-0.01em" }}>Solvant Labs</div>
         </div>
 
@@ -55,9 +55,9 @@ export default function OGImage() {
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: 14, color: "#4A5560", fontSize: 24 }}>
-          <span style={{ color: "#1F6FEB", fontWeight: 700 }}>Lead in</span>
+          <span style={{ color: "#cb450f", fontWeight: 700 }}>Lead in</span>
           <span>→ Agent → CRM →</span>
-          <span style={{ color: "#1F6FEB", fontWeight: 700 }}>Reply sent</span>
+          <span style={{ color: "#cb450f", fontWeight: 700 }}>Reply sent</span>
         </div>
       </div>
     ),

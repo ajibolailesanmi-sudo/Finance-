@@ -50,8 +50,8 @@ export function Schematic() {
           {f.a[2]}
         </text>
 
-        <circle className="pulse-glow" r={15} cx={0} cy={0} fill="#1F6FEB" />
-        <circle className="pulse" r={5} cx={0} cy={0} fill="#1F6FEB" />
+        <circle className="pulse-glow" r={15} cx={0} cy={0} fill="#cb450f" />
+        <circle className="pulse" r={5} cx={0} cy={0} fill="#cb450f" />
 
         <Node id="n1" x={66} idx="01" label={f.n[0]} below />
         <Node id="n2" x={300} idx="02" label={f.n[1]} boxed />
@@ -90,8 +90,8 @@ function Node({
         {idx}
       </text>
       {boxed ? <rect x={x - 45} y={112} width={90} height={40} rx={6} fill="#FFFFFF" stroke="#DDE3E0" strokeWidth={1.5} /> : null}
-      <circle className="ring" cx={x} cy={132} r={28} fill="none" stroke="#1F6FEB" strokeWidth={2} opacity={0} />
-      <circle className="dot" cx={x} cy={132} r={7} fill="#1F6FEB" opacity={boxed ? 0 : 0.28} />
+      <circle className="ring" cx={x} cy={132} r={28} fill="none" stroke="#cb450f" strokeWidth={2} opacity={0} />
+      <circle className="dot" cx={x} cy={132} r={7} fill="#cb450f" opacity={boxed ? 0 : 0.28} />
       <text
         className="lbl"
         x={x}
