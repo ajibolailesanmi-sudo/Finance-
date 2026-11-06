@@ -80,6 +80,41 @@ export const FLOWS = [
   { a: ["booking", "confirm", "remind"], n: ["Booking", "Agent", "Calendar", "Confirmed"], c: "appointments booked and confirmed after hours" },
 ];
 
+// "Why Solvant" value-props band (our own take on the benefits-grid pattern).
+export const WHY_LEDE =
+  "The point was never fancy AI. It's hours back, leads that don't slip, and work that doesn't wait on someone remembering to do it.";
+export const WHY = [
+  {
+    t: "Answer in seconds, not hours",
+    p: "Leads and customers get a reply the moment they reach out — over dinner, on the weekend, at 2 a.m.",
+  },
+  {
+    t: "Kill the busywork",
+    p: "Data entry, follow-ups, and status updates run themselves, so your team stops retyping the same thing into three systems.",
+  },
+  {
+    t: "Nothing slips",
+    p: "Work is triaged, routed, and logged automatically — no dropped leads, no paperwork forgotten in an inbox.",
+  },
+  {
+    t: "You own what we build",
+    p: "Every build is documented, tested before launch, and yours to keep — never a black box you can't open.",
+  },
+];
+
+// "Who we build for" — the small service businesses we actually serve (matches
+// the FAQ). Framed by the workflows we automate, not claims of deep expertise.
+export const AUDIENCES_LEDE =
+  "We build general automation for small service businesses. The tools change from shop to shop; the engineering discipline doesn't.";
+export const AUDIENCES = [
+  { t: "Home & trade services", p: "Instant quote replies, job scheduling, and review requests that send themselves." },
+  { t: "Clinics & practices", p: "Booking, reminders, and intake forms that fill themselves in." },
+  { t: "Law & professional services", p: "Client intake, document triage, and matter-status updates." },
+  { t: "Real estate", p: "Lead capture, instant routing to the right agent, and follow-up that never sleeps." },
+  { t: "Agencies & studios", p: "Client onboarding, reporting, and the status pings clients expect." },
+  { t: "Field & contracting", p: "Dispatch, status updates, and paperwork off the clipboard." },
+];
+
 export const PROBLEMS = [
   { k: "01 / speed", t: "Leads that wait an hour go cold. Most small businesses reply in four." },
   { k: "02 / double entry", t: "Your team retypes the same information into three systems." },

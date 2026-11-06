@@ -9,6 +9,10 @@ import {
   TOOLS,
   TOOLS_LABEL,
   STATS,
+  WHY,
+  WHY_LEDE,
+  AUDIENCES,
+  AUDIENCES_LEDE,
   PROBLEMS,
   SERVICES,
   SERVICES_LEDE,
@@ -16,6 +20,29 @@ import {
   CASES,
   FINAL_CTA,
 } from "@/lib/content";
+
+// Simple line icons for the "Why Solvant" tiles (index-matched to WHY).
+const WHY_ICONS = [
+  // clock — answer in seconds
+  <>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M12 7.5 V12 L15 14" strokeLinecap="round" strokeLinejoin="round" />
+  </>,
+  // sparkle — kill the busywork
+  <>
+    <path d="M12 3 L13.7 9.3 L20 11 L13.7 12.7 L12 19 L10.3 12.7 L4 11 L10.3 9.3 Z" strokeLinejoin="round" />
+  </>,
+  // shield-check — nothing slips
+  <>
+    <path d="M12 2.5 L20 6 V11 C20 16 16.6 19.5 12 21.5 C7.4 19.5 4 16 4 11 V6 Z" strokeLinejoin="round" />
+    <path d="M8.5 11.8 L11 14.2 L15.6 9.3" strokeLinecap="round" strokeLinejoin="round" />
+  </>,
+  // key — you own it
+  <>
+    <circle cx="8" cy="8" r="4" />
+    <path d="M11 11 L19 19 M16 16 L18.5 13.5 M14 14 L16 16" strokeLinecap="round" strokeLinejoin="round" />
+  </>,
+];
 
 export default function Home() {
   return (
@@ -130,6 +157,28 @@ export default function Home() {
         </div>
       </section>
 
+      {/* WHY SOLVANT */}
+      <section aria-label="Why Solvant Labs" className="py-[clamp(52px,7vw,96px)]">
+        <div className="mx-auto max-w-wrap px-6">
+          <SectionHead eyebrow="Why Solvant Labs" title="Automation that earns its keep." lede={WHY_LEDE} />
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {WHY.map((w, i) => (
+              <Reveal key={w.t} className="rounded-[10px] border border-trace bg-surface p-6">
+                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-[9px] bg-signal/10 text-signal">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
+                    {WHY_ICONS[i]}
+                  </svg>
+                </div>
+                <h3 className="mb-1.5 text-[17px]">{w.t}</h3>
+                <p className="text-[14px] leading-[1.5] text-graphite">{w.p}</p>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <Hr />
+
       {/* SERVICES PREVIEW */}
       <section id="services-preview" aria-label="Services" className="py-[clamp(52px,7vw,96px)]">
         <div className="mx-auto max-w-wrap px-6">
@@ -157,6 +206,23 @@ export default function Home() {
           <Reveal className="mt-6 flex justify-center">
             <ArrowLink href="/services">See full services</ArrowLink>
           </Reveal>
+        </div>
+      </section>
+
+      <Hr />
+
+      {/* WHO WE BUILD FOR */}
+      <section aria-label="Who we build for" className="py-[clamp(52px,7vw,96px)]">
+        <div className="mx-auto max-w-wrap px-6">
+          <SectionHead eyebrow="Who we build for" title="Small service businesses, mostly." lede={AUDIENCES_LEDE} />
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {AUDIENCES.map((a) => (
+              <Reveal key={a.t} className="rounded-[10px] border border-trace bg-surface p-6">
+                <h3 className="text-[18px]">{a.t}</h3>
+                <p className="mt-2 text-[14px] leading-[1.5] text-graphite">{a.p}</p>
+              </Reveal>
+            ))}
+          </div>
         </div>
       </section>
 
