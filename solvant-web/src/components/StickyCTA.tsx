@@ -30,7 +30,7 @@ export function StickyCTA() {
         href={BOOKING_URL}
         target="_blank"
         rel="noopener noreferrer"
-        className="flex w-full items-center justify-center gap-2 rounded-[9px] bg-signal px-5 py-3.5 text-[15px] font-semibold text-white shadow-[0_6px_20px_rgba(31,111,235,0.3)]"
+        className="flex w-full items-center justify-center gap-2 rounded-[9px] bg-signal px-5 py-3.5 text-[15px] font-semibold text-white shadow-[0_6px_20px_rgba(203,69,15,0.3)]"
       >
         {CTA_LABEL}
         <span aria-hidden="true">→</span>

@@ -20,7 +20,7 @@ export function CTAButton({
   const [toast, setToast] = useState(false);
 
   const base =
-    "inline-block rounded-[7px] bg-signal px-[22px] py-3.5 text-[15px] font-semibold text-white shadow-[0_1px_0_rgba(16,24,32,0.12)] transition hover:-translate-y-px hover:bg-signal-ink hover:shadow-[0_8px_22px_rgba(31,111,235,0.26)] active:translate-y-0";
+    "inline-block rounded-[7px] bg-signal px-[22px] py-3.5 text-[15px] font-semibold text-white shadow-[0_1px_0_rgba(16,24,32,0.12)] transition hover:-translate-y-px hover:bg-signal-ink hover:shadow-[0_8px_22px_rgba(203,69,15,0.26)] active:translate-y-0";
 
   if (BOOKING_CONFIGURED) {
     return (

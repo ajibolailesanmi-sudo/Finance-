@@ -40,7 +40,7 @@ export default function Home() {
                 href="/work"
                 className="group inline-flex items-center gap-3 text-[15px] font-semibold text-ink"
               >
-                <span className="flex h-11 w-11 items-center justify-center rounded-full border border-trace bg-surface text-signal transition group-hover:-translate-y-0.5 group-hover:border-signal group-hover:shadow-[0_8px_22px_rgba(31,111,235,0.18)]">
+                <span className="flex h-11 w-11 items-center justify-center rounded-full border border-trace bg-surface text-signal transition group-hover:-translate-y-0.5 group-hover:border-signal group-hover:shadow-[0_8px_22px_rgba(203,69,15,0.18)]">
                   <svg width="13" height="13" viewBox="0 0 14 14" aria-hidden="true">
                     <path d="M3 2 L11.5 7 L3 12 Z" fill="currentColor" />
                   </svg>

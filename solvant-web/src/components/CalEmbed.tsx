@@ -15,7 +15,7 @@ export function CalEmbed({ calLink }: { calLink: string }) {
       const cal = await getCalApi();
       cal("ui", {
         theme: "light",
-        cssVarsPerTheme: { light: { "cal-brand": "#1F6FEB" }, dark: { "cal-brand": "#1F6FEB" } },
+        cssVarsPerTheme: { light: { "cal-brand": "#cb450f" }, dark: { "cal-brand": "#cb450f" } },
         hideEventTypeDetails: false,
         layout: "month_view",
       });

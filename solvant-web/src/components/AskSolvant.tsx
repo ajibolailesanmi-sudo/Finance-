@@ -95,7 +95,7 @@ export function AskSolvant() {
         type="button"
         aria-label="Open Ask Solvant chat"
         onClick={() => setOpen(true)}
-        className={`fixed ${scrolled ? "bottom-[88px]" : "bottom-[22px]"} right-[22px] z-[60] flex items-center gap-2.5 rounded-[30px] bg-signal px-4 py-3 pl-[15px] text-[14px] font-semibold text-white shadow-[0_10px_30px_rgba(31,111,235,0.34)] transition-all duration-300 hover:-translate-y-0.5 md:bottom-[22px]`}
+        className={`fixed ${scrolled ? "bottom-[88px]" : "bottom-[22px]"} right-[22px] z-[60] flex items-center gap-2.5 rounded-[30px] bg-signal px-4 py-3 pl-[15px] text-[14px] font-semibold text-white shadow-[0_10px_30px_rgba(203,69,15,0.34)] transition-all duration-300 hover:-translate-y-0.5 md:bottom-[22px]`}
       >
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path d="M4 5h16v11H8l-4 3z" stroke="#fff" strokeWidth="1.7" strokeLinejoin="round" />
@@ -117,8 +117,8 @@ export function AskSolvant() {
       <div className="flex items-center gap-2.5 border-b border-trace px-4 py-3.5">
         <div className="flex h-[30px] w-[30px] items-center justify-center rounded-[7px] bg-ink">
           <svg width="16" height="16" viewBox="0 0 22 22" aria-hidden="true">
-            <rect x="2" y="2" width="18" height="18" rx="4" fill="none" stroke="#1F6FEB" strokeWidth="1.6" />
-            <circle cx="7" cy="7" r="1.8" fill="#1F6FEB" />
+            <rect x="2" y="2" width="18" height="18" rx="4" fill="none" stroke="#cb450f" strokeWidth="1.6" />
+            <circle cx="7" cy="7" r="1.8" fill="#cb450f" />
             <circle cx="15" cy="15" r="1.8" fill="#fff" />
           </svg>
         </div>
