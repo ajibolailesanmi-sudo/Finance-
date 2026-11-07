@@ -132,7 +132,34 @@ export default function Home() {
               </div>
             </div>
           </div>
-          <Schematic />
+          <div className="relative">
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute -inset-8 -z-10"
+              style={{ background: "radial-gradient(55% 55% at 68% 32%, rgba(203,69,15,0.13), transparent 70%)" }}
+            />
+            <div className="relative overflow-hidden rounded-[18px] border border-trace bg-surface shadow-[0_20px_55px_rgba(16,24,32,0.09)]">
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 opacity-50"
+                style={{
+                  backgroundImage:
+                    "linear-gradient(var(--paper-line) 1px, transparent 1px), linear-gradient(90deg, var(--paper-line) 1px, transparent 1px)",
+                  backgroundSize: "28px 28px",
+                }}
+              />
+              <div className="relative px-5 py-7">
+                <div className="mb-4 flex items-center gap-2.5">
+                  <span className="h-2.5 w-2.5 rounded-full bg-signal" />
+                  <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-graphite">Live workflow</span>
+                  <span className="ml-auto rounded-full border border-trace px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.12em] text-graphite">
+                    24/7
+                  </span>
+                </div>
+                <Schematic />
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -153,8 +180,31 @@ export default function Home() {
       </section>
 
       {/* PROBLEM STRIP */}
-      <section className="bg-ink text-paper" aria-label="The problem">
-        <Reveal className="mx-auto max-w-wrap px-6 py-[clamp(52px,7vw,96px)]">
+      <section className="relative overflow-hidden bg-ink text-paper" aria-label="The problem">
+        <svg
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 h-full w-full opacity-[0.18]"
+          viewBox="0 0 1200 420"
+          preserveAspectRatio="xMidYMid slice"
+        >
+          <g fill="none" stroke="#cb450f" strokeWidth="1.5">
+            <path d="M-40 110 L230 190 L470 120 L720 210 L980 130 L1240 200" />
+          </g>
+          <g fill="none" stroke="#ffffff" strokeWidth="1" opacity="0.4">
+            <path d="M-40 320 L250 260 L500 330 L760 255 L1010 330 L1240 270" />
+          </g>
+          <g fill="#cb450f">
+            <circle cx="230" cy="190" r="4.5" />
+            <circle cx="720" cy="210" r="4.5" />
+            <circle cx="980" cy="130" r="4.5" />
+          </g>
+          <g fill="#ffffff" opacity="0.5">
+            <circle cx="470" cy="120" r="3.5" />
+            <circle cx="500" cy="330" r="3.5" />
+            <circle cx="1010" cy="330" r="3.5" />
+          </g>
+        </svg>
+        <Reveal className="relative z-10 mx-auto max-w-wrap px-6 py-[clamp(52px,7vw,96px)]">
           <span className="inline-flex items-center gap-2.5 font-mono text-[12px] uppercase tracking-[0.16em] text-[#9aa6b0] before:h-px before:w-6 before:bg-signal before:content-['']">
             Where the hours and leads leak out
           </span>
