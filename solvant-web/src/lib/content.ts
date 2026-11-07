@@ -14,7 +14,7 @@ export const BOOKING_CONFIGURED = !BOOKING_URL.startsWith("[FILL");
 /** Public Cal.com link slug for the inline scheduler (no API key needed). Override with NEXT_PUBLIC_CAL_LINK. */
 export const CAL_LINK = process.env.NEXT_PUBLIC_CAL_LINK || "ajibola-ilesanmi-q1jb1t/15min";
 
-export const CTA_LABEL = "Schedule a Consultation";
+export const CTA_LABEL = "Schedule Consultation";
 
 export const CONTACT = {
   email: "info@solvantlabs.com",
