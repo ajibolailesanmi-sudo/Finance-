@@ -19,6 +19,7 @@ export function Footer() {
               ["/services", "Services"],
               ["/work", "Work"],
               ["/process", "Process"],
+              ["/insights", "Insights"],
               ["/contact", "Contact"],
             ].map(([href, label]) => (
               <Link key={href} href={href} className="block py-1.5 text-[14px] text-graphite hover:text-signal">
