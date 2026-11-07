@@ -36,11 +36,11 @@ export function Footer() {
                 rel="noopener noreferrer"
                 className="block py-1.5 text-[14px] text-graphite hover:text-signal"
               >
-                Book an intro call
+                Schedule a consultation
               </a>
             ) : (
               <Link href="/contact" className="block py-1.5 text-[14px] text-graphite hover:text-signal">
-                Book an intro call
+                Schedule a consultation
               </Link>
             )}
             <span className="block py-1.5 text-[14px] text-graphite">{CONTACT.email}</span>
