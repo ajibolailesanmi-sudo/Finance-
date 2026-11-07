@@ -9,6 +9,7 @@ const LINKS = [
   { href: "/services", label: "Services" },
   { href: "/work", label: "Work" },
   { href: "/process", label: "Process" },
+  { href: "/insights", label: "Insights" },
   { href: "/contact", label: "Contact" },
 ];
 
@@ -36,7 +37,7 @@ export function Nav() {
           } absolute left-0 right-0 top-16 flex-col items-start gap-0 border-b border-trace bg-paper px-6 py-2 md:static md:flex md:flex-row md:items-center md:gap-7 md:border-0 md:bg-transparent md:p-0`}
         >
           {LINKS.map((l) => {
-            const active = pathname === l.href;
+            const active = pathname === l.href || pathname.startsWith(l.href + "/");
             return (
               <Link
                 key={l.href}
