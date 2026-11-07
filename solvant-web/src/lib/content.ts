@@ -55,6 +55,7 @@ export const TOOLS_LABEL = "The tools we build with";
 export const TOOLS = [
   "n8n",
   "Make",
+  "Airtable",
   "Supabase",
   "HubSpot",
   "Slack",
