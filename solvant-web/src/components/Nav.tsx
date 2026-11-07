@@ -7,7 +7,7 @@ import { CTAButton } from "./CTA";
 
 const LINKS = [
   { href: "/services", label: "Services" },
-  { href: "/work", label: "Work" },
+  { href: "/work", label: "Case Studies" },
   { href: "/process", label: "Process" },
   { href: "/insights", label: "Insights" },
   { href: "/contact", label: "Contact" },
