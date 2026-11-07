@@ -17,7 +17,7 @@ export function Footer() {
             <h4 className="mb-3 font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-graphite">Site</h4>
             {[
               ["/services", "Services"],
-              ["/work", "Work"],
+              ["/work", "Case Studies"],
               ["/process", "Process"],
               ["/insights", "Insights"],
               ["/contact", "Contact"],
