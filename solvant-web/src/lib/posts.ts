@@ -764,6 +764,11 @@ export function getPost(slug: string): Post | undefined {
   return POSTS.find((p) => p.slug === slug);
 }
 
+/** Public path of a post's cover image (one generated per slug, in public/images/insights). */
+export function coverFor(slug: string): string {
+  return `/images/insights/${slug}.png`;
+}
+
 /** Human-readable date, e.g. "November 5, 2026". */
 export function formatDate(iso: string): string {
   const d = new Date(iso + "T00:00:00");

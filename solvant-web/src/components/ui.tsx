@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Reveal } from "./Reveal";
 
@@ -15,17 +16,51 @@ export function SectionHead({
   eyebrow,
   title,
   lede,
+  className,
 }: {
   eyebrow: string;
   title: string;
   lede?: string;
+  /** Override the wrapper classes (default adds the section's bottom margin). */
+  className?: string;
 }) {
   return (
-    <Reveal className="mb-11 max-w-[62ch]">
+    <Reveal className={className ?? "mb-11 max-w-[62ch]"}>
       <Eyebrow>{eyebrow}</Eyebrow>
       <h2 className="mt-3.5 text-[clamp(24px,3.4vw,36px)] leading-[1.1]">{title}</h2>
       {lede ? <p className="mt-3.5 text-[18px] text-graphite">{lede}</p> : null}
     </Reveal>
+  );
+}
+
+/**
+ * Section header paired with an illustration: text on one side, image on the
+ * other. `side` puts the image left or right on desktop (stacks on mobile).
+ */
+export function SectionHeadArt({
+  eyebrow,
+  title,
+  lede,
+  src,
+  side = "right",
+}: {
+  eyebrow: string;
+  title: string;
+  lede?: string;
+  src: string;
+  side?: "left" | "right";
+}) {
+  return (
+    <div className="mb-11 grid grid-cols-1 items-center gap-8 md:grid-cols-[1fr_0.85fr] md:gap-12">
+      <SectionHead eyebrow={eyebrow} title={title} lede={lede} className="max-w-[62ch]" />
+      <Reveal
+        className={`relative aspect-[16/9] w-full overflow-hidden rounded-[14px] border border-trace bg-surface shadow-[0_18px_50px_rgba(16,24,32,0.08)] ${
+          side === "left" ? "md:order-first" : ""
+        }`}
+      >
+        <Image src={src} alt="" fill sizes="(max-width: 768px) 100vw, 45vw" className="object-cover" />
+      </Reveal>
+    </div>
   );
 }
 
