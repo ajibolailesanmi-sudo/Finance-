@@ -1,5 +1,5 @@
+import Image from "next/image";
 import Link from "next/link";
-import { Schematic } from "@/components/Schematic";
 import { Reveal } from "@/components/Reveal";
 import { CTAButton } from "@/components/CTA";
 import { Typewriter } from "@/components/Typewriter";
@@ -139,24 +139,22 @@ export default function Home() {
               style={{ background: "radial-gradient(55% 55% at 68% 32%, rgba(203,69,15,0.13), transparent 70%)" }}
             />
             <div className="relative overflow-hidden rounded-[18px] border border-trace bg-surface shadow-[0_20px_55px_rgba(16,24,32,0.09)]">
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-0 opacity-50"
-                style={{
-                  backgroundImage:
-                    "linear-gradient(var(--paper-line) 1px, transparent 1px), linear-gradient(90deg, var(--paper-line) 1px, transparent 1px)",
-                  backgroundSize: "28px 28px",
-                }}
-              />
-              <div className="relative px-5 py-7">
-                <div className="mb-4 flex items-center gap-2.5">
-                  <span className="h-2.5 w-2.5 rounded-full bg-signal" />
-                  <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-graphite">Live workflow</span>
-                  <span className="ml-auto rounded-full border border-trace px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.12em] text-graphite">
-                    24/7
-                  </span>
-                </div>
-                <Schematic />
+              <div className="flex items-center gap-2.5 border-b border-trace px-5 py-3.5">
+                <span className="h-2.5 w-2.5 rounded-full bg-signal" />
+                <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-graphite">Live workflow</span>
+                <span className="ml-auto rounded-full border border-trace px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.12em] text-graphite">
+                  24/7
+                </span>
+              </div>
+              <div className="relative aspect-[16/9] w-full bg-ink">
+                <Image
+                  src="/images/accents/hero-accent.png"
+                  alt=""
+                  fill
+                  priority
+                  sizes="(max-width: 768px) 100vw, 45vw"
+                  className="object-cover"
+                />
               </div>
             </div>
           </div>
@@ -249,7 +247,7 @@ export default function Home() {
       {/* WHY SOLVANT */}
       <section aria-label="Why Solvant Labs" className="py-[clamp(52px,7vw,96px)]">
         <div className="mx-auto max-w-wrap px-6">
-          <SectionHeadArt eyebrow="Why Solvant Labs" title="Automation that earns its keep." lede={WHY_LEDE} src="/images/sections/automation-engine.png" side="right" />
+          <SectionHeadArt eyebrow="Why Solvant Labs" title="Automation that earns its keep." lede={WHY_LEDE} src="/images/sections/v2/automation-engine.png" side="right" />
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {WHY.map((w, i) => (
               <Reveal key={w.t} className="rounded-[10px] border border-trace bg-surface p-6">
@@ -271,7 +269,7 @@ export default function Home() {
       {/* SERVICES PREVIEW */}
       <section id="services-preview" aria-label="Services" className="py-[clamp(52px,7vw,96px)]">
         <div className="mx-auto max-w-wrap px-6">
-          <SectionHeadArt eyebrow="What we build" title="Three productized offers. Fixed prices, so you know what you're getting." lede={SERVICES_LEDE} src="/images/sections/services-offers.png" side="left" />
+          <SectionHeadArt eyebrow="What we build" title="Three productized offers. Fixed prices, so you know what you're getting." lede={SERVICES_LEDE} src="/images/sections/v2/services-offers.png" side="left" />
           <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
             {SERVICES.map((s) => (
               <Reveal
@@ -325,7 +323,7 @@ export default function Home() {
       {/* PROCESS PREVIEW */}
       <section aria-label="How it works" className="py-[clamp(52px,7vw,96px)]">
         <div className="mx-auto max-w-wrap px-6">
-          <SectionHeadArt eyebrow="How it works" title="Three steps, and most of the work is on us." src="/images/sections/process-map-build-run.png" side="right" />
+          <SectionHeadArt eyebrow="How it works" title="Three steps, and most of the work is on us." src="/images/sections/v2/process-map-build-run.png" side="right" />
           <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
             {STEPS.map((s) => (
               <Reveal key={s.t} className="border-t-2 border-ink pt-6">
@@ -346,7 +344,7 @@ export default function Home() {
       {/* WORK PREVIEW */}
       <section aria-label="Work" className="py-[clamp(52px,7vw,96px)]">
         <div className="mx-auto max-w-wrap px-6">
-          <SectionHeadArt eyebrow="Selected work" title="Automations and agents we've built — and open-sourced." src="/images/sections/proof-open-source.png" side="left" />
+          <SectionHeadArt eyebrow="Selected work" title="Automations and agents we've built — and open-sourced." src="/images/sections/v2/proof-open-source.png" side="left" />
           <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
             {CASES.map((c) => (
               <Reveal key={c.title} className="flex flex-col gap-3.5 rounded-[10px] border border-trace bg-surface p-7">
@@ -366,30 +364,18 @@ export default function Home() {
 
       {/* FINAL CTA */}
       <section className="relative overflow-hidden bg-ink text-center text-paper" aria-label="Book a call">
-        <svg
+        <Image
+          src="/images/accents/cta-accent.png"
+          alt=""
+          fill
+          sizes="100vw"
+          className="pointer-events-none object-cover"
+        />
+        <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 h-full w-full opacity-[0.22]"
-          viewBox="0 0 1200 400"
-          preserveAspectRatio="xMidYMid slice"
-        >
-          <g fill="none" strokeWidth="1.5" stroke="#cb450f">
-            <path d="M-40 70 L180 150 L380 80 L620 190 L860 95 L1080 175 L1260 110" />
-          </g>
-          <g fill="none" strokeWidth="1" stroke="#ffffff" opacity="0.5">
-            <path d="M-40 300 L220 235 L430 320 L680 245 L920 320 L1160 255 L1260 300" />
-          </g>
-          <g fill="#cb450f">
-            <circle cx="180" cy="150" r="5" />
-            <circle cx="620" cy="190" r="5" />
-            <circle cx="1080" cy="175" r="5" />
-          </g>
-          <g fill="#ffffff" opacity="0.6">
-            <circle cx="380" cy="80" r="4" />
-            <circle cx="860" cy="95" r="4" />
-            <circle cx="430" cy="320" r="4" />
-            <circle cx="920" cy="320" r="4" />
-          </g>
-        </svg>
+          className="pointer-events-none absolute inset-0"
+          style={{ background: "linear-gradient(180deg, rgba(16,24,32,0.62) 0%, rgba(16,24,32,0.42) 50%, rgba(16,24,32,0.74) 100%)" }}
+        />
         <Reveal className="relative z-10 mx-auto max-w-wrap px-6 py-[clamp(52px,7vw,96px)]">
           <h2 className="mx-auto mb-3.5 max-w-[22ch] text-[clamp(24px,3.4vw,34px)] text-white">{FINAL_CTA.headline}</h2>
           <p className="mx-auto mb-7 max-w-[46ch] text-[17px] text-[#b6c0c9]">{FINAL_CTA.sub}</p>
