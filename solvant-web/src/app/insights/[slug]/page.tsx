@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CTAButton } from "@/components/CTA";
-import { POSTS, getPost, formatDate } from "@/lib/posts";
+import { POSTS, getPost, formatDate, coverFor } from "@/lib/posts";
 
 export function generateStaticParams() {
   return POSTS.map((p) => ({ slug: p.slug }));
@@ -41,6 +42,19 @@ export default function PostPage({ params }: { params: { slug: string } }) {
           </div>
         </div>
       </section>
+
+      <div className="mx-auto max-w-[880px] px-6 pb-8">
+        <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[12px] border border-trace bg-paper shadow-[0_18px_50px_rgba(16,24,32,0.08)]">
+          <Image
+            src={coverFor(post.slug)}
+            alt=""
+            fill
+            priority
+            sizes="(max-width: 880px) 100vw, 880px"
+            className="object-cover"
+          />
+        </div>
+      </div>
 
       <section className="pb-[clamp(44px,6vw,80px)]">
         <div className="mx-auto max-w-[680px] px-6">

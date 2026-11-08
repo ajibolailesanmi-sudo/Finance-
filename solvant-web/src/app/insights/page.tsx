@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { PageHero } from "@/components/PageHero";
-import { POSTS, formatDate } from "@/lib/posts";
+import { POSTS, formatDate, coverFor } from "@/lib/posts";
 
 export const metadata: Metadata = {
   title: "Insights | Solvant Labs",
@@ -26,14 +27,25 @@ export default function InsightsPage() {
               <Link
                 key={p.slug}
                 href={`/insights/${p.slug}`}
-                className="group flex flex-col rounded-[10px] border border-trace bg-surface p-7 transition hover:-translate-y-0.5 hover:border-signal hover:shadow-[0_12px_34px_rgba(16,24,32,0.07)]"
+                className="group flex flex-col overflow-hidden rounded-[10px] border border-trace bg-surface transition hover:-translate-y-0.5 hover:border-signal hover:shadow-[0_12px_34px_rgba(16,24,32,0.07)]"
               >
-                <div className="mb-3 font-mono text-[11px] uppercase tracking-[0.12em] text-graphite">
-                  {formatDate(p.date)} · {p.readMins} min read
+                <div className="relative aspect-[16/9] w-full border-b border-trace bg-paper">
+                  <Image
+                    src={coverFor(p.slug)}
+                    alt=""
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    className="object-cover"
+                  />
                 </div>
-                <h2 className="mb-2 text-[21px] leading-[1.2] transition group-hover:text-signal">{p.title}</h2>
-                <p className="text-[14.5px] leading-[1.55] text-graphite">{p.dek}</p>
-                <span className="mt-5 font-mono text-[13px] text-signal after:content-['_→']">Read</span>
+                <div className="flex flex-1 flex-col p-7">
+                  <div className="mb-3 font-mono text-[11px] uppercase tracking-[0.12em] text-graphite">
+                    {formatDate(p.date)} · {p.readMins} min read
+                  </div>
+                  <h2 className="mb-2 text-[21px] leading-[1.2] transition group-hover:text-signal">{p.title}</h2>
+                  <p className="text-[14.5px] leading-[1.55] text-graphite">{p.dek}</p>
+                  <span className="mt-5 font-mono text-[13px] text-signal after:content-['_→']">Read</span>
+                </div>
               </Link>
             ))}
           </div>
