@@ -247,7 +247,7 @@ export default function Home() {
       {/* WHY SOLVANT */}
       <section aria-label="Why Solvant Labs" className="py-[clamp(52px,7vw,96px)]">
         <div className="mx-auto max-w-wrap px-6">
-          <SectionHeadArt eyebrow="Why Solvant Labs" title="Automation that earns its keep." lede={WHY_LEDE} src="/images/sections/v2/automation-engine.png" side="right" />
+          <SectionHeadArt eyebrow="Why Solvant Labs" title="Automation that earns its keep." lede={WHY_LEDE} src="/images/sections/v3/automation-engine.png" side="right" />
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {WHY.map((w, i) => (
               <Reveal key={w.t} className="rounded-[10px] border border-trace bg-surface p-6">
@@ -269,7 +269,7 @@ export default function Home() {
       {/* SERVICES PREVIEW */}
       <section id="services-preview" aria-label="Services" className="py-[clamp(52px,7vw,96px)]">
         <div className="mx-auto max-w-wrap px-6">
-          <SectionHeadArt eyebrow="What we build" title="Three productized offers. Fixed prices, so you know what you're getting." lede={SERVICES_LEDE} src="/images/sections/v2/services-offers.png" side="left" />
+          <SectionHeadArt eyebrow="What we build" title="Three productized offers. Fixed prices, so you know what you're getting." lede={SERVICES_LEDE} src="/images/sections/v3/services-offers.png" side="left" />
           <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
             {SERVICES.map((s) => (
               <Reveal
@@ -323,7 +323,7 @@ export default function Home() {
       {/* PROCESS PREVIEW */}
       <section aria-label="How it works" className="py-[clamp(52px,7vw,96px)]">
         <div className="mx-auto max-w-wrap px-6">
-          <SectionHeadArt eyebrow="How it works" title="Three steps, and most of the work is on us." src="/images/sections/v2/process-map-build-run.png" side="right" />
+          <SectionHeadArt eyebrow="How it works" title="Three steps, and most of the work is on us." src="/images/sections/v3/process-map-build-run.png" side="right" />
           <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
             {STEPS.map((s) => (
               <Reveal key={s.t} className="border-t-2 border-ink pt-6">
@@ -344,7 +344,7 @@ export default function Home() {
       {/* WORK PREVIEW */}
       <section aria-label="Work" className="py-[clamp(52px,7vw,96px)]">
         <div className="mx-auto max-w-wrap px-6">
-          <SectionHeadArt eyebrow="Selected work" title="Automations and agents we've built — and open-sourced." src="/images/sections/v2/proof-open-source.png" side="left" />
+          <SectionHeadArt eyebrow="Selected work" title="Automations and agents we've built — and open-sourced." src="/images/sections/v3/proof-open-source.png" side="left" />
           <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
             {CASES.map((c) => (
               <Reveal key={c.title} className="flex flex-col gap-3.5 rounded-[10px] border border-trace bg-surface p-7">

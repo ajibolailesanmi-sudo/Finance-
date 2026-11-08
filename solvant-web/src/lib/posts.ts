@@ -766,7 +766,7 @@ export function getPost(slug: string): Post | undefined {
 
 /** Public path of a post's cover image (one generated per slug, in public/images/insights). */
 export function coverFor(slug: string): string {
-  return `/images/insights/v2/${slug}.png`;
+  return `/images/insights/v3/${slug}.png`;
 }
 
 /** Human-readable date, e.g. "November 5, 2026". */
