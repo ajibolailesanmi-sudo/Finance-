@@ -6,7 +6,7 @@ import { CONTACT } from "@/lib/content";
 type Status = "idle" | "sending" | "sent" | "error" | "offline";
 
 const field =
-  "w-full rounded-[8px] border border-trace bg-surface px-3.5 py-2.5 text-[15px] text-ink placeholder:text-graphite/55 focus:border-signal focus:outline-none focus:ring-2 focus:ring-signal/20";
+  "w-full rounded-[8px] border border-trace bg-surface px-3.5 py-2.5 text-[15px] text-ink placeholder:text-[#8e979f] focus:border-signal focus:outline-none focus:ring-2 focus:ring-[rgba(203,69,15,0.22)]";
 const label = "mb-1.5 block font-mono text-[11px] uppercase tracking-[0.1em] text-graphite";
 
 /**
@@ -56,7 +56,7 @@ export function ContactForm() {
   if (status === "sent") {
     return (
       <div className="flex flex-col items-start gap-3 rounded-[12px] border border-signal bg-surface p-7 shadow-[0_0_0_1px_var(--signal)]">
-        <span className="flex h-11 w-11 items-center justify-center rounded-full bg-signal/10 text-signal">
+        <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[rgba(203,69,15,0.1)] text-signal">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
             <path d="M5 12.5 L10 17.5 L19 7" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
