@@ -3,6 +3,9 @@ import Link from "next/link";
 import { Reveal } from "@/components/Reveal";
 import { CTAButton } from "@/components/CTA";
 import { Typewriter } from "@/components/Typewriter";
+import { ProcessFlow } from "@/components/ProcessFlow";
+import { Testimonials } from "@/components/Testimonials";
+import { EmailCapture } from "@/components/EmailCapture";
 import { SectionHead, SectionHeadArt, ArrowLink, Hr } from "@/components/ui";
 import {
   HERO,
@@ -17,6 +20,9 @@ import {
   SERVICES,
   SERVICES_LEDE,
   STEPS,
+  LEAD_FLOW,
+  TESTIMONIALS,
+  EMAIL_CAPTURE,
   CASES,
   FINAL_CTA,
 } from "@/lib/content";
@@ -114,8 +120,12 @@ export default function Home() {
                 {HERO.secondary}
               </Link>
             </div>
-            <div className="mt-9 inline-flex items-center gap-3.5 rounded-[11px] border border-trace bg-surface px-4 py-3 shadow-[0_1px_0_rgba(16,24,32,0.04)]">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[8px] bg-signal/10 text-signal">
+            <div className="mt-7 max-w-[480px]">
+              <p className="mb-2.5 text-[13.5px] text-graphite">{EMAIL_CAPTURE.hero}</p>
+              <EmailCapture cta={EMAIL_CAPTURE.cta} note="Hero email capture: visitor left an email on the homepage and asked to be contacted." />
+            </div>
+            <div className="mt-7 inline-flex items-center gap-3.5 rounded-[11px] border border-trace bg-surface px-4 py-3 shadow-[0_1px_0_rgba(16,24,32,0.04)]">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[8px] bg-[rgba(203,69,15,0.1)] text-signal">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                   <path
                     d="M12 2.5 L20 6 V11 C20 16 16.6 19.5 12 21.5 C7.4 19.5 4 16 4 11 V6 Z"
@@ -228,6 +238,18 @@ export default function Home() {
         </Reveal>
       </section>
 
+      {/* BEFORE / AFTER */}
+      <section aria-label="Before and after" className="py-[clamp(52px,7vw,96px)]">
+        <div className="mx-auto max-w-wrap px-6">
+          <SectionHead
+            eyebrow="Before and after"
+            title="The same lead, two very different journeys."
+            lede="Most automation pitches are abstract. This is the actual path a new inquiry takes in a typical service business, and the path it takes once an agent is running it."
+          />
+          <ProcessFlow before={LEAD_FLOW.before} after={LEAD_FLOW.after} />
+        </div>
+      </section>
+
       {/* STATS BAND */}
       <section aria-label="By the numbers" className="border-b border-trace py-[clamp(44px,6vw,72px)]">
         <div className="mx-auto max-w-wrap px-6">
@@ -251,7 +273,7 @@ export default function Home() {
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {WHY.map((w, i) => (
               <Reveal key={w.t} className="rounded-[10px] border border-trace bg-surface p-6">
-                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-[9px] bg-signal/10 text-signal">
+                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-[9px] bg-[rgba(203,69,15,0.1)] text-signal">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
                     {WHY_ICONS[i]}
                   </svg>
@@ -305,7 +327,7 @@ export default function Home() {
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {AUDIENCES.map((a, i) => (
               <Reveal key={a.t} className="rounded-[10px] border border-trace bg-surface p-6">
-                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-[9px] bg-signal/10 text-signal">
+                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-[9px] bg-[rgba(203,69,15,0.1)] text-signal">
                   <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     {AUD_ICONS[i]}
                   </svg>
@@ -362,6 +384,8 @@ export default function Home() {
         </div>
       </section>
 
+      <Testimonials items={TESTIMONIALS} />
+
       {/* FINAL CTA */}
       <section className="relative overflow-hidden bg-ink text-center text-paper" aria-label="Book a call">
         <Image
@@ -380,6 +404,10 @@ export default function Home() {
           <h2 className="mx-auto mb-3.5 max-w-[22ch] text-[clamp(24px,3.4vw,34px)] text-white">{FINAL_CTA.headline}</h2>
           <p className="mx-auto mb-7 max-w-[46ch] text-[17px] text-[#b6c0c9]">{FINAL_CTA.sub}</p>
           <CTAButton className="!px-6 !py-4 !text-[16px]" />
+          <div className="mx-auto mt-9 flex max-w-[480px] flex-col items-center gap-3 border-t border-white/15 pt-7">
+            <p className="text-[14px] text-[#b6c0c9]">{EMAIL_CAPTURE.closing}</p>
+            <EmailCapture variant="dark" cta={EMAIL_CAPTURE.cta} className="justify-center" note="Closing email capture: visitor left an email at the bottom of the homepage and asked to be contacted." />
+          </div>
         </Reveal>
       </section>
     </>

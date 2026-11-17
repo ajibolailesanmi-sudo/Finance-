@@ -1,3 +1,6 @@
+import type { FlowStage } from "@/components/ProcessFlow";
+import type { Testimonial } from "@/components/Testimonials";
+
 // ============================================================================
 // SINGLE SOURCE OF TRUTH for copy, pricing, and founder-supplied [FILL] values.
 // Edit this file to change site text — components read from here.
@@ -198,6 +201,50 @@ export const STEPS = [
     detail: ["Monitoring and alerts", "Fixes when integrations change", "Monthly improvements"],
   },
 ];
+
+// Before/after diagram (homepage + Process page). One real small-business
+// workflow — a new lead — drawn twice: how it travels today, and how it travels
+// once an agent runs it. Icon names come from components/ProcessFlow.tsx.
+export const LEAD_FLOW: { before: FlowStage; after: FlowStage } = {
+  before: {
+    kicker: "Today",
+    title: "A new lead takes the long way round.",
+    blurb: "It lands in an inbox, gets copied into a spreadsheet, waits for a callback, and often goes cold before anyone answers.",
+    steps: [
+      { label: "Form or call comes in", icon: "inbox" },
+      { label: "Sits until someone sees it", icon: "clock" },
+      { label: "Retyped into a sheet", icon: "sheet" },
+      { label: "Callback attempt", icon: "phone" },
+      { label: "Voicemail, try again", icon: "repeat" },
+      { label: "Lead goes cold", icon: "alert" },
+    ],
+  },
+  after: {
+    kicker: "With an agent",
+    title: "Answered in seconds, booked, and logged.",
+    blurb: "The agent replies instantly, asks the qualifying questions, offers a time, and writes everything to your CRM. You approve anything that needs a human.",
+    steps: [
+      { label: "Form or call comes in", icon: "inbox" },
+      { label: "Instant reply", icon: "bolt" },
+      { label: "Qualified", icon: "check" },
+      { label: "Time booked", icon: "calendar" },
+      { label: "Logged in the CRM", icon: "db" },
+      { label: "You're notified", icon: "bell" },
+    ],
+    branch: { afterIndex: 2, label: "Quote or edge case? You approve", icon: "user" },
+  },
+};
+
+// Client quotes. Leave empty until we have real ones with permission to publish;
+// the Testimonials section renders nothing while this is empty.
+export const TESTIMONIALS: Testimonial[] = [];
+
+// Copy around the one-field email forms (hero + closing).
+export const EMAIL_CAPTURE = {
+  hero: "Not ready for a call? Leave your email and we'll reach out. No pitch deck.",
+  closing: "Or leave your email and we'll get back to you within one business day.",
+  cta: "Get in touch",
+};
 
 export const RIGOR = [
   { m: "Documented", t: "You own the manual", p: "Every automation ships with documentation and a walkthrough, so you're never dependent on a black box." },

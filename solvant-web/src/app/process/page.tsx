@@ -3,7 +3,8 @@ import { CTAButton } from "@/components/CTA";
 import { Faq } from "@/components/Faq";
 import { PageHero } from "@/components/PageHero";
 import { SectionHead, Hr } from "@/components/ui";
-import { STEPS, RIGOR, FAQ } from "@/lib/content";
+import { ProcessFlow } from "@/components/ProcessFlow";
+import { STEPS, RIGOR, FAQ, LEAD_FLOW } from "@/lib/content";
 
 export const metadata: Metadata = {
   title: "Process | Solvant Labs",
@@ -45,6 +46,19 @@ export default function ProcessPage() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      <Hr />
+
+      <section aria-label="Before and after" className="py-[clamp(52px,7vw,96px)]">
+        <div className="mx-auto max-w-wrap px-6">
+          <SectionHead
+            eyebrow="What changes"
+            title="One workflow, before and after."
+            lede="A new lead is the workflow we map most often. Here is how it usually runs today, and how it runs once the Map, Build, Run cycle is done."
+          />
+          <ProcessFlow before={LEAD_FLOW.before} after={LEAD_FLOW.after} />
         </div>
       </section>
 
