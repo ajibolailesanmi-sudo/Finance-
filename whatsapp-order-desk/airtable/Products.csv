@@ -1,0 +1,9 @@
+SKU,Name,Aliases,Unit,Price,Stock,Active
+NOODLE-CTN,"Instant noodles, chicken 70g","indomie, noodles, noodle",carton of 40,13500,120,checked
+RICE-50,Parboiled rice 50kg,"rice, bag of rice, rice bag",50kg bag,88000,40,checked
+OIL-25L,Vegetable oil 25L,"oil, groundnut oil, veg oil, vegetable oil",25L keg,72000,25,checked
+SUGAR-50,Granulated sugar 50kg,sugar,50kg bag,81000,18,checked
+SPAG-CTN,Spaghetti 500g,"spaghetti, spag, pasta",carton of 20,17500,60,checked
+TOMATO-CTN,Tomato paste 70g sachet,"tomato paste, tomato, paste",carton of 50,9800,3,checked
+SEMO-10,Semolina 10kg,"semo, semovita, semolina",10kg bag,16500,0,checked
+WATER-PK,Bottled water 75cl,"water, bottle water, table water",pack of 12,2400,200,checked

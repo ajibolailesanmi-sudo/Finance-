@@ -1,0 +1,10 @@
+[
+  { "sku": "NOODLE-CTN", "name": "Instant noodles, chicken 70g", "aliases": ["indomie", "noodles", "noodle"], "unit": "carton of 40", "price": 13500, "stock": 120, "active": true },
+  { "sku": "RICE-50", "name": "Parboiled rice 50kg", "aliases": ["rice", "bag of rice", "rice bag"], "unit": "50kg bag", "price": 88000, "stock": 40, "active": true },
+  { "sku": "OIL-25L", "name": "Vegetable oil 25L", "aliases": ["oil", "groundnut oil", "veg oil", "vegetable oil"], "unit": "25L keg", "price": 72000, "stock": 25, "active": true },
+  { "sku": "SUGAR-50", "name": "Granulated sugar 50kg", "aliases": ["sugar"], "unit": "50kg bag", "price": 81000, "stock": 18, "active": true },
+  { "sku": "SPAG-CTN", "name": "Spaghetti 500g", "aliases": ["spaghetti", "spag", "pasta"], "unit": "carton of 20", "price": 17500, "stock": 60, "active": true },
+  { "sku": "TOMATO-CTN", "name": "Tomato paste 70g sachet", "aliases": ["tomato paste", "tomato", "paste"], "unit": "carton of 50", "price": 9800, "stock": 3, "active": true },
+  { "sku": "SEMO-10", "name": "Semolina 10kg", "aliases": ["semo", "semovita", "semolina"], "unit": "10kg bag", "price": 16500, "stock": 0, "active": true },
+  { "sku": "WATER-PK", "name": "Bottled water 75cl", "aliases": ["water", "bottle water", "table water"], "unit": "pack of 12", "price": 2400, "stock": 200, "active": true }
+]
